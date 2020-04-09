@@ -38,5 +38,24 @@
 
 当然选择nutui组件库并不单单是因为更新频率与使用率，还有最重要的一点就是nutui组件库兼容了vue+typescript的开发方式。现在typescript开发逐渐成为主流，而且vue3.0也是使用typescript开发，这就更加肯定了，酷兜使用nutui组件库进行重构。
 
-### Typescript中的装饰器
-从2018年vue开始重写到vue3.0源码的公布，大家一直期待vue3.0的正式发布，在这两年的时间里，我们听到最多关于vue3.0的话可能就是vue3.0使用了typescript。为了更好的兼容之后的vue版本，也为了增加代码的可读性与可维护性，在酷兜V2.2版本我们加入的了typescript。
+### Typescript
+从2018年vue开始重写到vue3.0源码的公布，大家一直期待vue3.0的正式发布，在这两年的时间里，我们听到最多的信息可能就是vue3.0是使用了typescript进行重构。为了更好的兼容之后的vue版本，也为了增加代码的可读性与可维护性，在酷兜V2.2版本我们加入的了typescript。  
+刚刚开始接触typescript时，我的第一反应就是，为什么要在项目中加typescript，有啥用，除了增加一个成本成本，好像没啥用。而且typescript和ES6的语法有很高的相似度，感觉完全没有必要使用typescript，其实不然，ES6 只是 JavaScript 的语言规范，而typescript 是 Microsoft 开发和维护的一种面向对象的编程语言，与JavaScript是两种脚本语言。只不过typescript中可以使用JavaScript中所有的代码和编码概念。但是不管是用ES6语法进行开发，还是使用Typescript进行开发，最终都是需要转换成浏览器识别的JavaScript语言。
+
+* 类型检查  
+    JavaScript是弱类型语言，而弱类型语言特点之一就是没有严格的类型定义，定义变量时都是用统一的var或const关键字，这样虽然不会影响代码的运行，但是运行时隐含的类型转换，也会损耗性能。而typescript则增加了类型和接口等概念来定义变量的类型，避免浏览器运行时类型转换。
+* 编译过程
+    JavaScript从另一个角度分类，也可以成为解释型语言，与编译型语言相对。无需编译，只要嵌入HTML代码中，就能由浏览器加载解释执行。而typescript，在嵌入HTML代码之前，通过编译进行类型注解对静态类型的检查，保证变量类型一致，并转换成JavaScript代码，保证浏览器加载解释执行。
+    
+说了这么多Typescript开发的好处，那在酷兜重构中typescript对我开发有哪些帮助呢！
+
+#### 1、减少了注释与逻辑判断
+在酷兜重构过程中，函数的调用，接口参数的传递都是必不可少的，由于JavaScript没有类型注解，参数可以是任何类型，但是JavaScript的每一个基础类型的方法都是不一样的，就可能会因为参数类型的不一致出现bug。Typescript的类型注解就可以避免这个问题。
+在酷兜重构中，
+
+
+
+
+
+### typescript在vue中的应用
+主要是typescript中的装饰器在vue中的应用
