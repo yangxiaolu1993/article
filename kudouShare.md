@@ -10,10 +10,66 @@
 * 使用NutUI组件库
 * 技术栈中增加 Typescript 
 * 布局使用100%
-* 浏览器history
 
 ### 目录结构
-一个好的目录结构，能是多人开发有序的进行，也方便管理。
+一个好的目录结构，能使多人开发有序的进行，也方便管理、扩展。
+
+```
+├── .bin                                # Webpack 配置文件
+├── build                               # 打包文件
+├── node_modules                        # 依赖的模块包（nutui、postcss-plugin-px2rem）
+├── package.json                        # 项目基本信息
+├── src                                 # 项目的核心组件
+│   ├── asset                           # 资源文件（css、image）
+│   ├── component                       # 公共组件
+│   ├── config                          # 环境配置文件（evn.ts）
+│   ├── icons                           # 存放 svg 格式图标
+│   ├── services                        # HTTP 请求配置（HttpClient.ts、GoodsApiService.ts）
+│   ├── store                           # 状态管理（vuex）
+│   ├── view                            # 核心组件
+│   ├── util                            # 公共方法(util.ts、imgSet.ts、appHelper.ts)
+│   ├── app.vue                         # 根组件
+│   ├── app.ts                          # 入口文件
+│   ├── router.ts                       # 页面路由
+│   ├── index.html                      # 主页模板
+│   ├── vue-shim-extend.d.ts            # 扩展 vue 全局类型声明
+│   └── vue-shim.d.ts                   # typescript 支持 *.vue 文件配置
+├── static                              # 静态资源（ico图标、vendor.dll.js）
+├── README.md                           # 项目描述信息（一些方法使用的注意事项）
+└── tsconfig.json                       # typescript 编译设置
+
+```
+有没有感觉这样的项目结构很清晰（小小的自恋一下），每个文件、文件夹都有明确的功能，并采用模块化的开发方式，在asset、view、store文件中我们均按照页面功能区分了模块文件。  
+大家可能注意到了， typescript 重构的项目，比起常用的 vue 应用程序目录结构，多了 tsconfig.json 、vue-shim.d.ts 、vue-shim-extend.d.ts 三个文件。
+
+* tsconfig.json  
+
+    这个文件指定了用来编译这个项目的根文件和编译规则，与 .babelrc 文件的功能类似。在这个文件中可以设置哪些文件需要 typescript 编译（include），哪些文件不需要（exclude）、是否启用装饰等。
+
+* vue-shim.d.ts   
+
+    由于 TypeScript 默认并不支持 *.vue 后缀的文件，所以在 vue 项目中引入的时候需要创建一个 vue-shim.d.ts 文件，放在项目根目录下，使用 typescript declare 声明一个模块，告诉 typescript 需要处理 *.vue 文件。   
+
+    ```
+    declare module "*.vue" {
+        import Vue from "vue";
+        export default Vue;
+    }
+    ```
+    这里需要敲一下黑板，在 typescript + vue 框架中，代码中导入 *.vue 文件的时候，需要写上 .vue 后缀。因为 TypeScript 默认只识别 *.ts 文件，不识别 *.vue 文件
+* vue-shim-extend.d.ts  
+
+    用于补充在 vue 中定义的全局变量的接口。在 node_modules 中的 vue/types/vue.d.ts 文件中声明了 vue 中的接口，在开发过程中，通过 ***.install(vue) 挂载到 Vue.prototype 上的全局变量，在 vue-shim-extend.d.ts 中定义接口，才能在组件中使用。
+
+    ```
+    // 在组件中可以直接使用 this.$toast
+
+    declare module 'vue/types/vue' {
+        interface Vue { 
+            $toast: any
+        }
+    }
+    ```
 
 ### NutUI组件库
 在JQuery横行霸道的时候，UI视觉库称为框架，随着技术的不断更新、发展，使用Vue、React单页面开发越来越流行，逐渐替代了JQuery开发方式。单页面开发是以组件为主，所以UI框架也就改名为UI组件库。  
@@ -50,6 +106,23 @@
 
 ### Typescript
 从2018年vue开始重写到vue3.0源码的公布，大家一直期待vue3.0的正式发布，在这两年的时间里，我们听到最多的信息可能就是vue3.0是使用了typescript进行重构。为了更好的兼容之后的vue版本，也为了增加代码的可读性与可维护性，在酷兜V2.2版本我们加入的了typescript。  
+我们来看一下 2016年-2018 年 ES6 与 typescript 的调查表：
+
+![ES6](https://img11.360buyimg.com/imagetools/jfs/t1/106624/36/19271/46970/5e9d2103E58066390/8ae16f4ca0b154d8.png)
+
+ES6 不同年份调查结果
+
+![typescript](https://img11.360buyimg.com/imagetools/jfs/t1/115487/8/1880/55691/5e9d2103E2307999c/f2e9766b9def4ed1.png)
+
+Typescript 不同年份调查结果
+
+我们可以清楚的看到，ES6的发展很平缓，Typescript 的使用人数虽然没有 ES6 多，但发展趋势很明显，一直处于上升趋势。2016年到2018年两年的时间，Typescript 愿意再次使用的用户比例从 20.8％增加到了 46.7％。从 2019-01-01 到 2020-04-19 typescript 的下载量已经超过了 vue 的下载量。 
+
+![TS 下载量](https://img10.360buyimg.com/imagetools/jfs/t1/113149/9/1885/16476/5e9d3a0dE30ed5232/5f8010aeb66ffd52.png)
+![vue 下载量](https://img11.360buyimg.com/imagetools/jfs/t1/86833/19/19516/15273/5e9d39a1Eb1d5a13b/d3747249b7eaf8ea.png)
+
+使用 typescript 进行应用程序开发是势在必行的。那使用 typescript 开发应用程序到底有什么好处呢？
+
 刚刚开始接触typescript时，我的第一反应就是，为什么要在项目中加typescript，有啥用，除了增加一个成本，好像没啥用。而且typescript和ES6的语法有很高的相似度，感觉完全没有必要使用typescript，其实不然，ES6 只是 JavaScript 的语言规范，而typescript 是 Microsoft 开发和维护的一种面向对象的编程语言，与JavaScript是两种脚本语言。只不过typescript中可以使用JavaScript中所有的代码和编码概念。但是不管是用ES6语法进行开发，还是使用Typescript进行开发，最终都是需要转换成浏览器识别的JavaScript语言。
 
 * 类型检查  
@@ -89,12 +162,191 @@ console.log(b) //123123.5
 
 ### typescript 在 vue 中的应用
 
-Typescript 与 vue 的结合，我们使用官方维护的 vue-class-component 装饰器，了解了 typescript 中的装饰器，能让我们更加了解 typescript 在 vue 中的应用。
+vue 应用程序开发，了解 vue 生命周期是不可或缺的。那结合 Typescript 之后，开发有哪些不同呢？主要是采用 Typescript 中的装饰器对 vue 组件进行了封装，让 Vue 组件语法在结合了 TypeScript 语法之后更加扁平化。vue 官方推荐使用 vue-class-component 装饰器。
 
+|    装饰器    | 装饰器分类 | 与 vue 对比 |  说明 | 用法 |
+|     ----    |    ----    |----    |  ---- |  --- |
+| @component  | 类装饰器 |components:{} |  声明子组件 |@Component({ components: { Price } }) |
+| @Prop       | 属性装饰器     |props:[]      |  接受来自父组件的数据 |@Prop() private msg!：string <br/>注：! 表示确定msg有值 |
+| @Watch      | 方法装饰器    |watch:{}      |  监控数据是否改变 | @Watch('show') <br/>onValChange(newVal:string,oldVal:string){}|
+| @Emit       | 方法装饰器    |vm.$emit('事件名') |  子组件触发父组件的自定义事件 |@Emit('input') <br/>handleInput(){} |
+| @Model      | 属性装饰器    |v-model |  双向绑定 |  @Model ('change', {type: Boolean})  checked!: boolean; |
+| Mixins      | 参数装饰器    |mixins: [] |  混入 |  1. @Component({mixins: [myMixins]})；<br/>2. class kudou extends Mixins(myMixins)  |
+| get         | 访问器装饰器    |computed:{} |  计算属性 |  get Name(){} |
+
+通过上面的对比，虽然 vue 结合了 Typescript 之后，写法上做了调整，但是依然有 vue 组件的影子，理解起来并不难。只要是了装饰器的工作原理，vue 结合 Typescript 开发就不成问题了。
 
 #### 装饰器
-装饰器是一种特殊类型的声明，它能够被附加到类声明，方法， 访问符，属性或参数上。 装饰器使用 @expression这种形式，expression求值后必须为一个函数，它会在运行时被调用，被装饰的声明信息做为参数传入。
 
-#### typescript 装饰器在 vue 中的应用
+装饰器是 ES2016 stage-2 的一个草案，但是在 babel 的支持下，已被广泛使用。毕竟是草案，就是说还没有正式发布，Typescript 官网中装饰器虽然有明确的文档说明，但是也是一项实验性特性。 一下关于装饰器的知识点、结论是以 Typescript 装饰器为基础哟！  
+官网给的定义：装饰器是一种特殊类型的声明，它能够被附加到类声明，方法， 访问符，属性或参数上。 装饰器使用 @expression这种形式，expression求值后必须为一个函数，它会在运行时被调用，被装饰的声明信息做为参数传入。需要注意的两点：   
 
+* 装饰器只能用于类和类的方法，不能用于函数，因为存在函数提升  
+* 装饰器对类的行为的改变，是代码编译时发生的，而不是在运行时。也就是说，装饰器本质就是编译时执行的函数。
 
+个人理解：装饰器就是在代码外层包了一层处理逻辑，去掉装饰器，代码依然可以正常运行。就好比：我们在水龙头外面的起泡器，安装以后，起泡器会在水里添加很多的泡泡，但说白了起泡器对水龙头是否正常工作一点儿影响都没有，卸掉了起泡器，水龙头照样工作。这里的起泡器就可以看成装饰器。
+
+```
+// person.ts
+
+class Person {
+    name: string;
+    age: number;
+    constructor() {
+        this.name = 'yugo';
+        this.age = 12;
+        console.log('年龄：' + this.age);
+    }
+}
+const P = new Person() // 输出 ‘hello Girl！’
+
+```
+我们定义了 Person 这个类，正常输出了 ‘hello Girl！’。现在我们我们为 Person 类添加一个装饰器 addAge 。
+
+```
+// addAge 装饰器工厂
+
+function addAge(args: number) {
+    return function (target: Function) { //真正的装饰器
+        target.prototype.age = args;
+    };
+}
+```
+```
+// person.ts
+
+@addAge(10)
+class Person {
+    name: string;
+    age: number;
+    constructor() {
+        this.name = 'yugo';
+        this.age = 12
+        console.log('年龄：'+this.age)
+    }
+}
+const P = new Person() // 输出 年龄：12
+
+```
+@addAge 装饰器的作用是为类的 age 属性赋值。运行 person.ts 输出的结果确不是我们期待的结果，为什么 age 的值不是10？原因就是上面提到的，装饰器本质是编译时执行的函数。运行 person.ts 并实例化 Person 对象，属于运行阶段，所以输出的是12，那我们怎样输出10呢？
+
+```
+// person.ts
+
+@addAge(10)
+class Person {
+    name: string;
+    age: number;
+    constructor() {
+        this.name = 'yugo';
+        // this.age = 12
+        console.log('年龄：'+this.age)
+    }
+}  
+const P1 = new Person()  // 输出 年龄：10
+```
+将 constructor 中对 age 的赋值注释，如果不使用装饰器，应该输出 “ 年龄： undefined ”，但现在输出的是 “ 年龄：10 ”。这也就验证了：装饰器是执行在编译阶段的函数，装饰器只是在代码外层添加了一层逻辑，去掉装饰器，代码依然可以正常运行。
+
+**装饰器在 vue 中的应用**    
+vue 官方推荐的是 vue-class-component 装饰器，Typescript 官网给出的 vue demo 使用的是 vue-property-decorator 装饰器，虽然 vue-property-decorator 装饰器是对 vue-class-component 装饰器的扩展，但是这两个插件的使用方式还是有区别的，在酷兜重构中，使用的是 vue-property-decorator 装饰器。  
+装饰器可以分为4类：类装饰器、方法装饰器、属性装饰器、参数装饰器。以属性装饰器 @Prop 为例，来聊聊装饰器是如何将 vue 与 Typescript 结合起来的。  
+属性装饰器声明在一个属性声明之前（紧靠着属性声明）。属性装饰器表达式会在运行时当做函数被调用，参数2个参数：
+* 对于静态成员来说是类的构造函数，对于实例成员是类的原型对象
+* 成员的名字
+
+分别来看一下：vue 子组件定义父组件传过来的值的方法
+
+```
+// Typescript
+
+@Prop({ type: Boolean, default: false }) readonly value:boolean = false
+
+```
+
+```
+// vue
+
+props:{ value: { type: Boolean, default: false}}
+```
+
+其实通过 @Prop 装饰器，最终获得的就是 vue 定义属性方式。我们不妨在 node_modules 中找到 vue-property-decorator/vue-property-decorator.js，阅读一下 @Prop 的实现方式。其实最关键的就三个函数：
+
+```
+// vue-class-component.js 创建装饰器
+
+function createDecorator(factory) {
+    return function (target, key, index) { 
+      var Ctor = typeof target === 'function' ? target : target.constructor;
+
+      if (!Ctor.__decorators__) {
+        Ctor.__decorators__ = [];
+      }
+
+      if (typeof index !== 'number') {
+        index = undefined;
+      }
+
+      Ctor.__decorators__.push(function (options) {
+        return factory(options, key, index);
+      });
+    };
+  }
+```
+
+```
+// vue-property-component.js 添加类属性
+function applyMetadata(options, target, key) {
+    if (!Array.isArray(options) && typeof options !== 'function' && typeof options.type === 'undefined'){
+        var type = Reflect.getMetadata('design:type', target, key);
+        if (type !== Object) {
+            options.type = type;
+        }
+    }
+}
+```
+
+```
+// vue-property-component.js 定义 prop 装饰器
+function Prop(options) {
+    if (options === void 0) { options = {}; }
+    return function (target, key) {   
+        applyMetadata(options, target, key);
+        createDecorator(function (componentOptions, k) {
+            ;
+            (componentOptions.props || (componentOptions.props = {}))[k] = options;
+        })(target, key);
+    };
+}
+
+```
+
+编译 Typescript 文件，执行 @Prop 装饰器，就是在执行 prop 函数。  
+* applyMetadata(options, target, key) 函数 
+    传入 applyMetadata() 函数的参数为 { type: Boolean, default: false }，if 判断 ``` !Array.isArray(options) , typeof options !== 'function' , typeof options.type === 'undefined' ``` 得到 false 。也就是说，调用 applyMetadata() 函数没有得到任何结果。
+* createDecorator(factory) 函数  
+     我们把调用 createDecorator() ，改造写一下，方便阅读。
+
+     ```
+        function fac = function (componentOptions, k) {
+            (componentOptions.props || (componentOptions.props = {}))[k] = options;
+        }
+        createDecorator(fac)(target, key)
+     ```
+     是不是清晰很多。通过阅读 createDecorator() 这个函数你会发现，到最后就是在执行 fac 函数，参数为 target、key。那就简单了，只要读懂 
+     ``` 
+     (componentOptions.props || (componentOptions.props = {}))[k] = options 
+     ``` 
+     这段代码就行了。  这段代码的意思是：为类属性 props 对象添加 k 值，将其简化就是；  
+     ``` 
+     props: { k : options }
+     ```
+     对用到例子中，传入参数，得到的结果就是：
+     ``` 
+     props: { value : { type: Boolean, default: false} } 
+     ``` 
+     是不是与在 vue 中定义是一模一样的。说了这多这么多，细心的人可能发现了， @Prop 装饰器其实就是将 Typescript 的写法，转换成了 vue 写法。知道了 @Prop 装饰器的实现方法，如果大家感兴趣可以，可以阅读其他装饰器的实现方式，与 @Prop 是一样的。
+
+### 布局使用100%
+说了这么多关于 Typescript 的知识点，换换脑子，咱们来说说页面布局。在酷兜重构中，vue 页面整体布局采用 height:100%、body fixed定位处理。
+
+#### iPhone X 底部适配
