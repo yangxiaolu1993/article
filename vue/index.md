@@ -41,3 +41,34 @@
       this.$emit("change", this.num);
     },
 ```
+
+
+### vue-cli3+ 知识点
+
+*** 
+
+#### 什么是 vue-cli,有什么用？
+
+使用 vue 搭建一个前端开发环境时，在不使用 vue-cli 的情况下，需要使用配置很多的基础项，比如：webpack 打包的配置，ES6 到 ES5 的转换、兼容，路由的配置等一系列。vue-cli 就是将这些基础配置项统一，节省开发时间，在没有特殊需求的情况，可直接使用开发。
+
+
+#### 预处理器
+
+sass / less / stylus 称为预处理器
+
+vue-cli 搭建的项目中内置的 webpack 仍然会被预配置为可以完成所有的处理。
+
+
+#### postcss
+
+vue-cli 内部使用 PostCss
+
+1、默认开启 autoprefixer，配置 浏览器兼容 可以在 package.json 的 browserslist 字段。
+
+2、配置 postcss  
+   * 配置 .postcssrc 文件；
+   * vue.config.js 中的 css.loaderOption.postcss 配置 postcss-loader 
+
+#### vue.config.js
+
+调整 webpack 配置最简单的方式
