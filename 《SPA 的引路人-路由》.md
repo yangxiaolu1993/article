@@ -90,7 +90,12 @@ hash 路由，也称为哈希路由。类似 https://xiaobian.com/#/home 就是�
 
 #### 原生 JS 实现 hash 路由
 
-
-
-
-
+首先了解：如何自定义一个vue插件？vue.install()   vue.use()
+1. router-link 与 router-view 组件
+2. a 标签实现跳转
+3. router-link 初始化为 a 标签
+4. 自定义组件，使用render方式
+5. 每一个 vue 组件都是一个 vue 实例，只是根实例会有一些不一样的属性，比如$el
+6. 父组件与子组件加载时的生命周期的加载顺序
+7. vue.mixins 全局混入，一旦使用全局混入，将影响之后每一个创建的vue实例
+8. vue.mixins 会在当前 vue 实例之前执行
