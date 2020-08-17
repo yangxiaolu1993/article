@@ -63,7 +63,7 @@ OK，既然路由这么重要，那我们从这几个方面，来讲解前端路
 ```
 这里空荡荡的只有一个```<div id="app"></div>```，以及一系列的js文件，所以说这个html是不完整的。我们看到的页面是通过这一系列的js渲染出来的，也就是我们常说的前端渲染。前端渲染通过客户端的算力来解决页面的构建，很大程度上缓解了服务端的压力。加上前端路由的配合，实现了无缝页面切换体验的用户体验。
 
-## 原理解析
+## 基础知识
 
 前面说到了啰嗦了这么多，大家可能要问，路由到底是个啥？为什么它能让用户体验无缝页面切换效果？URL变化，为什么不用去重新访问？其实，前端路由的实现原理很简单，现在就跟着小编一起来揭开它神秘的面纱吧！
 
@@ -72,16 +72,41 @@ OK，既然路由这么重要，那我们从这几个方面，来讲解前端路
 * Hash 模式：URL 的锚点值（hash 值 + window.onhashchange() 事件
 * History 模式：history.pushState() + history.replaceState() + window.onpopstate() 事件
 
-在介绍 Hash 模式与 History 模式之前，我们先来储备一些粮草。
+在深入了解 Hash 模式与 History 模式之前，我们先来储备一些粮草。
 
-### Hash 路由
+### History
 
-Hash 路由，也称为哈希路由。类似 https://xiaobian.com/#/home 就是哈希路由。Hash 指的是 URL 地址中的锚部分，也就是 # 后面的部分。Hash 路由就是利用 URL 中的 hash 值的变化实现页面的跳转的。首先，先来了解一下 hash 值都有哪些特点：
+用户访问网页的历史记录通常会被保存在一个类似于栈对象中，即 window.history 对象，点击返回就出栈，跳下一页就入栈。在单页面兴起之前，History 只提供了三个 API ：
 
-1. ```#`` 是网页的标志位，HTTP 请求不包含 #
-2. 因为 HTTP 请求不包含 #，所以在改变 # 时，不触发网页重载
-3. 改变 # 会改变浏览器的访问历史
-4. 改变 # 会触发 window.onhashchange() 事件
+* history.back()：回退到上一个访问记录，同浏览器后退键
+* history.forward()：前进到下一个访问记录，同浏览器前进键
+* history.go(n)：跳转到相应的访问记录；若 n > 0，则前进，若 n < 0，则后退，若 n = 0，则刷新当前页面
+
+随着单页面的发展，大前端的到来，HTML5 对 History API 新增的两个方法：pushState()、replaceState()。  
+* pushState(stateData, title, url)：在 history 中创建一个新的访问记录，不能跨域，且不造成页面刷新;
+* replaceState(stateData, title, url)：修改当前的访问记录，不能跨域，且不造成页面刷新
+
+![History API](https://img10.360buyimg.com/imagetools/jfs/t1/141154/19/5653/297566/5f3a609cE41ebbe25/c23845924a284491.png)
+
+另外，HTML5 新增了可以监听 history 和 hash 变化的方法：window.onpopstate()、window.onhashchange()  
+
+![Window API](https://img14.360buyimg.com/imagetools/jfs/t1/119378/39/13661/236999/5f3a6046E97ab7aa0/6f519d1c5e2d6d88.png)
+
+我们发现触发 window.onpopstate()、window.onhashchange() 监听事件的方法有重合的部分。使用 history.back()、history.forward()、history.go(n)、&lt;a&gt;标签改变 hash 值，window.onpopstate()、window.onhashchange() 都会触发。     
+> 我们可以得到一个结论：在 hash 路由模式下，我们同样可以使用 window.onpopstate() 事件，监听路由的改变。在这里提前透露一下：vue-router 的 hash 模式下路由的改变，就是监听的 window.onpopstate() 事件。
+
+### Hash 
+
+一个完整的 URL 包括：协议、域名、端口、虚拟目录、文件名、参数、锚。  
+
+![URL 组成](https://img12.360buyimg.com/imagetools/jfs/t1/116233/29/15155/17882/5f3a73a9Ef5592b82/7dbf415ead483d09.png)  
+
+hash 值指的是 URL 地址中的锚部分，也就是 # 后面的部分。Hash 路由就是利用 hash 值的变化来实现页面的跳转。那么 hash 值都有哪些特点呢！
+
+* hash 值是网页的标志位，HTTP 请求不包含锚部分
+* 因为 HTTP 请求不包含锚部分，所以 hash 值改变时，不触发网页重载
+* 改变 hash 值会改变浏览器的访问历史，即 history 栈
+* 改变 hash 值会触发 window.onhashchange() 事件
 
 改变 hash 值的方式有三种：
 
@@ -90,13 +115,16 @@ Hash 路由，也称为哈希路由。类似 https://xiaobian.com/#/home 就是�
 3. 浏览器前进键（history.forword()）、后退键(history.back())
 4. 手动刷新当前的 URL（点击 Enter 键进行刷新）
 
-通过了解 hash 值的特性，我们可以知道，前三种改变 hash 值的方式，并不会导致浏览器向服务器发送请求，浏览器不发出请求，也就不会刷新页面。hash 值改变，触发全局 window 对象上的 hashchange 事件。那我们通过 hashchange 事件来监听到 URL 的变化，从而进行 DOM 操作来模拟页面跳转。  
+到现在我们可以知道，前三种改变 hash 值的方式，并不会导致浏览器向服务器发送请求，浏览器不发出请求，也就不会刷新页面。hash 值改变，触发全局 window 对象上的 hashchange 事件。那我们通过 hashchange 事件来监听到 URL 的变化，从而进行 DOM 操作来模拟页面跳转。  
 
 手动刷新 URL，与在浏览器中输入 URL，Enter 回车的情况是一样的，初始化页面，浏览器会重新向服务器发送请求，服务器返回 index.html，不会触发 hashchange 事件，但是会触发 load 事件。
 
 ![hash 流程图](https://img13.360buyimg.com/imagetools/jfs/t1/119923/18/9500/67035/5f335933Ee392a6e3/cf3e580523d52c0a.png)  
 
-Hash 路由的基础知识了解的差不多了，让我们就来实现一下吧！
+
+## 原理解析与实现
+
+History 与 Hash 的基本知识了解的差不多了，那我们就上手来写一写吧。
 
 #### 原生 JS 实现 hash 路由
 
@@ -105,7 +133,7 @@ Hash 路由的基础知识了解的差不多了，让我们就来实现一下吧
 * 使用 &lt;a&gt; 标签，触发锚点改变，进行路由跳转
 * JS 动态改变 hash 值，进行路由跳转
 
-那我们就一步一来，先来 完成 html 的设计：
+那我们就一步一来，先来完成 HTML 的设计：
 
 index.html
 
@@ -118,10 +146,8 @@ index.html
           <li><a href="#/home"> &lt;a&gt; 标签点击跳转 home</a></li>
           <li><a href="#/about"> &lt;a&gt; 标签点击跳转 about</a></li>
       </ul>
-
       <!-- JS 动态改变 hash 值，实现跳转 -->
       <div id="handleToCart"> JS 动态点击跳转 cart</div>
-
       <!-- 渲染路由对应的 UI -->
       <div id="routeViewHash" class="routeView"></div>
   </div>
@@ -144,7 +170,6 @@ class HashRouter {
         }else{
             this.routerView.innerHTML = '当前路由：'+ location.hash
         }
-
         // 监听 hash 值改变
         window.addEventListener('hashchange', ()=>{
             this.routerView.innerHTML = '当前路由：'+ location.hash
@@ -159,18 +184,15 @@ class HashRouter {
 
 HashRouter 类自身定义了 routerView 属性，接收渲染路由 UI 的容器。HashRouter 类定义了2个方法：init() 和 push()
 
-* init() 
+* init()   
+ 首先页面渲染时，不会触发 window.onhashchange()，根据当前 hash 值，渲染 routerView。监听 window.onhashchange() 事件，一旦事件触发，重新渲染 routerView。
 
-首先页面渲染时，不会触发 window.onhashchange()，根据当前 hash 值，渲染 routerView。监听 window.onhashchange() 事件，一旦事件触发，重新渲染 routerView。
-
-* push()
-
-在实际开发过程中，进行路由跳转需要使用 JS 动态设置。通过为 window.location.hash 设置值，实现路由跳转。 这里需要注意，window.location.hash 改变 hash 值，也会触发 window.onhashchange() 事件。
+* push()  
+ 在实际开发过程中，进行路由跳转需要使用 JS 动态设置。通过为 window.location.hash 设置值，实现路由跳转。 这里需要注意，window.location.hash 改变 hash 值，也会触发 window.onhashchange() 事件。
 
 所以不管是 &lt;a&gt; 标签改变 hash，还是 window.location.hash 改变 hash，统一在 window.onhashchange() 事件中，重新渲染 routerView。
 
-接下来只要要 HashRouter 实例化，调用就可以了：
-
+接下来只要 HashRouter 实例化，调用就可以了：  
 index.html
 ```
 <body>
@@ -198,13 +220,12 @@ index.html
   </script>
 </body>
 
-```
-
-那我们来看一下效果：
+```  
+那我们来看一下效果：   
 
 ![hash-js](https://storage.360buyimg.com/imgtools/dbd41c75b7-1a163350-e066-11ea-b779-5171ebe3afba.gif)
 
-
+#### 基于 Vue 实现 hash 路由
 
 
 
