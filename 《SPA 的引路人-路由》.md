@@ -63,16 +63,16 @@ OK，既然路由这么重要，那我们从这几个方面，来讲解前端路
 ```
 这里空荡荡的只有一个```<div id="app"></div>```，以及一系列的js文件，所以说这个html是不完整的。我们看到的页面是通过这一系列的js渲染出来的，也就是我们常说的前端渲染。前端渲染通过客户端的算力来解决页面的构建，很大程度上缓解了服务端的压力。加上前端路由的配合，实现了无缝页面切换体验的用户体验。
 
-## 基础知识
+## 路由原理解析  
 
-前面说到了啰嗦了这么多，大家可能要问，路由到底是个啥？为什么它能让用户体验无缝页面切换效果？URL变化，为什么不用去重新访问？其实，前端路由的实现原理很简单，现在就跟着小编一起来揭开它神秘的面纱吧！
+了解了前端路由的由来，那路由到底是个啥？在单页 Web 应用中，路由描述的是 URL 与 UI 之间的映射关系，这种映射是单向的，即 URL 变化引起 UI 更新（无需刷新页面）。 
 
-不管是 vue-router 还是 react-router，他们都两种路由模式：Hash 模式和 History 模式。两种路由模式实现方式可以简单概述为：
+现在流行的前端路由模式分为两种：
 
-* Hash 模式：URL 的锚点值（hash 值 + window.onhashchange() 事件
-* History 模式：history.pushState() + history.replaceState() + window.onpopstate() 事件
+* Hash 模式：地址栏 URL 中有 #，即 hash 值。通过改变 hash 值实现路由跳转。
+* History 模式：地址栏 URL 中没有 #。通过 pushState() 和 replaceState() 改变浏览器历史记录栈，实现路由跳转。
 
-在深入了解 Hash 模式与 History 模式之前，我们先来储备一些粮草。
+Hash 模式与 History 模式其实实现原理很简单，现在就跟着小编一起来揭开它神秘的面纱吧！
 
 ### History
 
@@ -115,23 +115,35 @@ hash 值指的是 URL 地址中的锚部分，也就是 # 后面的部分。Hash
 3. 浏览器前进键（history.forword()）、后退键(history.back())
 4. 手动刷新当前的 URL（点击 Enter 键进行刷新）
 
-到现在我们可以知道，前三种改变 hash 值的方式，并不会导致浏览器向服务器发送请求，浏览器不发出请求，也就不会刷新页面。hash 值改变，触发全局 window 对象上的 hashchange 事件。那我们通过 hashchange 事件来监听到 URL 的变化，从而进行 DOM 操作来模拟页面跳转。  
+到现在我们可以知道，前三种改变 hash 值的方式，并不会导致浏览器向服务器发送请求，浏览器不发出请求，也就不会刷新页面。hash 值改变，触发全局 window 对象上的 hashchange 事件。通过 hashchange 事件来监听到 URL 的变化，从而进行 DOM 操作来模拟页面跳转。  
 
 手动刷新 URL，与在浏览器中输入 URL，Enter 回车的情况是一样的，初始化页面，浏览器会重新向服务器发送请求，服务器返回 index.html，不会触发 hashchange 事件，但是会触发 load 事件。
 
 ![hash 流程图](https://img13.360buyimg.com/imagetools/jfs/t1/119923/18/9500/67035/5f335933Ee392a6e3/cf3e580523d52c0a.png)  
 
+### History 模式与 Hash 模式
 
-## 原理解析与实现
+History 模式与 Hash 模式都属于浏览器自身的特性。不管是在哪种模式下，路由的跳转，都会在浏览器历史记录中创建一个新的历史记录项，history.length 的值也会 +1。若是使用 replaceState() 进行路由跳转，情况就不一样了。replaceState() 会修改当前的历史记录项，不会创建新的历史记录项，history.length 的值保持不变。
 
-History 与 Hash 的基本知识了解的差不多了，那我们就上手来写一写吧。
+![浏览器历史记录](https://storage.360buyimg.com/imgtools/a7de05d4b9-97a5bee0-e0f6-11ea-b779-5171ebe3afba.gif)
 
-#### 原生 JS 实现 hash 路由
+浏览器历史记录可以看成是一个栈，遵循先进后出的规则，即最先进入的历史项，在栈的最底部。使用 pushState() 在浏览器记录中分别创建两个记录历史项 cart、list，压入历史记录栈中，此时历史栈为 cart -> list 。接着，使用 replaceState() 修改浏览器记录，将最后一次压入栈的 list 修改为 item，此时历史栈中更新为 cart -> item。触发浏览器后退键，最后一次压入栈的 list 出栈，cart 路由页面渲染。  
+
+单页面路由利用浏览器自身的特性，实现了 URL 与 UI 之间的映射关系：
+
+* Hash 模式：URL 的锚点值（hash 值） + window.onhashchange() 事件
+* History 模式：history.pushState() + history.replaceState() + window.onpopstate() 事件
+
+## 原生 JS 实现路由
+
+知道了 History 模式与 Hash 模式的实现原理，我们何不上手实现一下呢！
+
+### 原生 JS 实现 hash 路由
 
 使用原生 JS 实现 hash 路由，我们需要先明确，触发路由跳转的方式：
 
-* 使用 &lt;a&gt; 标签，触发锚点改变，进行路由跳转
-* JS 动态改变 hash 值，进行路由跳转
+* 使用 &lt;a&gt; 标签，触发锚点改变，监听 window.onhashchange() 进行路由跳转
+* JS 动态改变 hash 值，window.location.hash 赋值，进行路由跳转
 
 那我们就一步一来，先来完成 HTML 的设计：
 
@@ -225,7 +237,111 @@ index.html
 
 ![hash-js](https://storage.360buyimg.com/imgtools/dbd41c75b7-1a163350-e066-11ea-b779-5171ebe3afba.gif)
 
+### 原生 JS 实现 history 路由
+
+实现 History 模式的路由同样需要明确触发跳转路由的方式：
+
+* JS 动态触发 pushState()、replaceState()
+* 拦截 &lt;a&gt; 标签点击事件，检测 URL 变化，使用 pushState() 进行跳转。
+
+History 模式触发路由跳转的方式与 Hash 模式稍有不同。通过之前的介绍，大家都了解，pushState()、replaceState()、&lt;a&gt; 标签改变 URL 都不会触发 window.onpopstate() 事件。那该怎么办，在实际开发过程中，我们是需要在 HTML 中进入跳转的。好在我们可以拦截 &lt;a&gt; 标签的点击事件，阻止 &lt;a&gt; 标签默认事件，检测 URL，使用 pushState() 进行跳转。
+
+index.html
+```
+<div>
+    <ul class="tab">
+        <!-- 定义路由 -->
+        <li><a href="/home">点击跳转 /home</a></li>
+        <li><a href="/about">点击跳转 /about</a></li>
+    </ul>
+    <!-- JS 动态改变 URL 值，实现跳转 -->
+    <div id="handlePush" class="btn"> JS 动态 pushState 跳转 list</div>
+    <div id="handleReplace" class="btn"> JS 动态 replaceState 跳转 item</div>
+    <!-- 渲染路由对应的 UI -->
+    <div id="routeViewHistory" class="routeView"></div>
+</div>
+```
+接下来，定义 HistoryRouter 类
+
+```
+class HistoryRouter {
+    constructor(routerview){
+        this.routerView = routerview
+    }
+    init(){
+        let that = this
+        let linkList = document.querySelectorAll('a[href]')
+        linkList.forEach(el => el.addEventListener('click', function (e) {
+            e.preventDefault()  // 阻止 <a> 默认跳转事件
+            history.pushState(null, '', el.getAttribute('href')) // 获取 URL，跳转
+            that.routerView.innerHTML = '当前路由：' + location.pathname
+        }))
+        // 监听 URL 改变
+        window.addEventListener('popstate', ()=>{
+            this.routerView.innerHTML = '当前路由：' + location.pathname
+        })
+    }
+    push(path){
+        history.pushState(null, '', path)
+        this.routerView.innerHTML = '当前路由：' + path
+    }
+    replace(path){
+        history.replaceState(null, '', path)
+        this.routerView.innerHTML = '当前路由：' + path
+    }
+}
+```
+HistoryRouter 类自身定义了 routerView 属性，接收渲染路由 UI 的容器。HistoryRouter 类定义了3个方法：init() 、push()、replace()。
+
+* init()  
+    init(）中主要做了2件事：
+    1. window.onpopstate() 事件，用于 history.go()、history.back()、history.forword() 的监听。  
+    2. 点击 &lt;a&gt 标签，浏览器 URL 更新为 href 的 URL，e.preventDefault() 阻止默认事件。将 href url 通过 pushState() 更新浏览器 URL，重新渲染 routerView。
+* push()
+    通过 history.pushState() 更新浏览器 URL，重新渲染 routerView。
+* replace()
+    通过 history.replaceState() 更新浏览器 URL，重新渲染 routerView。
+
+ok，现在只要实例化 HistoryRouter 类，调用方法就可以了！
+
+index.html
+
+```
+<body>
+  <div>
+      ……
+      <!-- JS 动态改变 URL 值，实现跳转 -->
+      <div id="handlePush" class="btn"> JS 动态 pushState 跳转 list</div>
+      <div id="handleReplace" class="btn"> JS 动态 replaceState 跳转 item</div>
+      <!-- 渲染路由对应的 UI -->
+      <div id="routeViewHash" class="routeView"></div>
+  </div>
+  <script type="text/javascript" src="./history/history.js"></script>
+  <script>
+    window.onload = function () {
+      let routerview = document.getElementById('routeViewHistory')
+      // HistoryRouter 实例化
+      let historyRouter = new HistoryRouter(routerview) 
+      historyRouter.init()
+      // JS 动态改变 URL 值
+      document.getElementById('handlePush').addEventListener('click', function(){
+        historyRouter.push('/list')
+      }, false); 
+      document.getElementById('handleReplace').addEventListener('click', function(){
+        historyRouter.replace('/item')
+      }, false); 
+    }
+  </script>
+</body>
+```
+来来来，展示效果啦！
+![](https://storage.360buyimg.com/imgtools/aaa3272210-7e7718e0-e102-11ea-8f90-d15419c43e51.gif)
+
+> 细心的同学应该已经发现了，在 HashRouter 类的 init() 方法中，处理了页面首次渲染的情况，但在 HistoryRouter 类中却没有。Hash 模式下，改变的是 URL 的 hash 值，浏览器请求是不携带 hash 值的，所以 http:localhost:8080/#/home 与 http:localhost:8080/#/cart，浏览器请求都是 http:localhost:8080。History 模式下，改变的则是 URL 除锚外的其他部分，所以 http:localhost:8080 与 http:localhost:8080/home 浏览器请求是不同的。这就也就可以解释在 vue-router 下，Hash 模式后端只需要将域名指向 index.html 即可，History 模式后端需要将域名下匹配不到的静态资源，返回到同一个 index.html 页面。
+
 #### 基于 Vue 实现 hash 路由
+
+
 
 
 
