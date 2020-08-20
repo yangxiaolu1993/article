@@ -811,7 +811,7 @@ export default class HashRouter {
 HashRouter 类最重要的作用就是监听 URL Hash 值的变化，来实现路由跳转。还记得之前原生 JS 实现的 Hash 路由吗，原理是一模一样的，代码直接拿来用都可以。
 
 ```
-export default class Hash {
+export default class HashRouter {
     constructor(router){
         this.router = router // 存储 MyRouter 对象
     }
@@ -865,6 +865,65 @@ export default {
 };
 ```
 ```<my-router-view/>```更新完以后是不是清晰多了。代码实现到这里，应该可以实现基本的跳转了，来看一下效果，验证一下！
+
+![](https://storage.360buyimg.com/imgtools/bfd27755f6-5c0bf770-e284-11ea-9f1f-7bf9739df39d.gif)
+
+页面初始渲染显示正常，点击底部导航也能正常跳转，但是为什么页面不更新呢？虽然我们通过 myRouter.current 将 hash 值变化与 MyRouterView 组件建立了联系，但没有对 myRouter.current 进行双向绑定，说白了，MyRouterView 组件并不知道 myRouter.current 的发生了改变。难道要实现双向绑定，当然不用！小编给大家安利一个 Vue 隐藏的 API：Vue.util.defineReactive()，了解过 Vue 源码的童鞋应该知道这个 API，用于定义一个对象的响应属性。那就简单了，在 MyRouter 插件初始化的时候，利用 Vue.util.defineReactive()，使 myRouter.current 得到监听。
+
+install.js
+```
+MyRouter.install = function(Vue,options){
+
+    Vue.mixin({
+        beforeCreate(){
+            ......
+            Object.defineProperty(this,'$myRoute',{
+                ....
+            })
+            // 新增代码 利用 Vue defineReactive 监听当前路由的变化
+            Vue.util.defineReactive(this._myRouter,'current')
+        }
+    })
+}
+```
+现在在来看看，MyRouterView 组件的内容有没有更新。  
+![](https://storage.360buyimg.com/imgtools/680086c4fc-f2861fc0-e287-11ea-b779-5171ebe3afba.gif)
+
+太不容易了，终于得到我们想要的效果了。HashRouter 类的 push()、replace()、go() 方法，直接 copy JSHashRouter 类的代码就实现了。
+
+```
+export default class HashRouter {
+    ......
+    push(params){
+        window.location.href = this.getUrl(params)
+    }
+    replace(params){
+        window.location.replace(this.getUrl(params))
+    }
+    go(n){
+        window.history.go(n)
+    }
+    // 获取当前 URL 
+    getUrl(path){
+        let path = ''
+        if(Utils.getProperty(params) == 'string'){
+            path = params
+        } else if(params.name || params.path){
+            path = params.name?params.name:params.path
+        }
+        const fullPath = window.location.href
+        const pos = fullPath.indexOf('#')
+        const p = pos > 0?fullPath.slice(0,pos):fullPath
+        return `${p}#/${path}`
+    }
+}
+
+```
+参照 VueRouter，动态导航方法可以是字符串，也可以是描述地址的对象，getUrl 函数处理 params 的各种情况。
+
+HashRouter 类基本功能终于实现完了，其实知道了 HashRouter 类的思路，HistoryRouter 类实现起来就不难了。
+
+### HistoryRouter 类
 
 
 
