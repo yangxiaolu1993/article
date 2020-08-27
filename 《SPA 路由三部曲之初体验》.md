@@ -212,5 +212,9 @@ history.replaceState() 的使用与 history.pushState() 非常相似，都是改
     
 ## 前端路由应用
 
+VueRouter 和 reactRouter 是现在最流行的路由状态管理工具。两者实现原理虽然是一致的，但由于所依赖的技术栈不同，使用方式也略有不同。
+
+### vue-router
+
 
 
