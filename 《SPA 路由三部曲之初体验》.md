@@ -9,9 +9,9 @@
 React | 2011年 | 227,023,229 | 154 K | 持续增长
 Vue   | 2014年 | 46,249,304  | 170 K | 持续增长
 
-仅 7 个月的时间，两个技术栈的下载量就突破了百万，React 甚至突破了千万。可以想象这两个技术栈是多么受欢迎。
+仅 7 个月的时间，两个技术栈的下载量就突破了百万，React 甚至突破了千万。不管是现下流行的 React、Vue，还是红极一时的 Angular、Ember。只要是单页 Web 应用，都离不开前端路由的配合。如果我们把单页 Web 应用比作一间房，每个页面分别对应房子中的每个房间，那么路由就是房间的门，不管房间装饰的有多漂亮，没有门，也无法展示在用户眼前，路由在单页面 Web 应用的地位也就不言而喻了。
 
-不管是现下流行的 React、Vue，还是红极一时的 Angular、Ember。只要是单页 Web 应用开发，都离不开前端路由的配合。如果我们把单页 Web 应用比作一间房，每个页面分别对应房子中的每个房间，那么路由就是每个房间的门，所以不管房间装饰的有多漂亮，没有门，也无法展示在用户眼前，路由在单页面 Web 应用开发的重要性也就不言而喻了。
+为了能为大家更好的介绍前端，小编将前端路由分成了三大部分《SPA 路由三部曲之初体验》、《SPA 路由三部曲之实战篇》、《SPA 路由三部曲之进阶篇》一步一步的探索前端路由的实现原理。先从前端路由的前世今生、基础原理解析、vue-router与react-router应用对比三部分对前端路由进行初步了解。
 
 ## 前端路由前世今生
 
@@ -21,7 +21,7 @@ Vue   | 2014年 | 46,249,304  | 170 K | 持续增长
 
 路由这个概念最先是在后端出现的，在 Web 开发早期的「刀耕火种」年代里，一直是后端路由占据主导地位，页面渲染完全依赖服务器。
 
-在最开始的时候，HTML、CSS、JavaScript 的文件以及数据载体 json(xml) 等文件都是放到后端网站目录下的，而且这些文件彼此是没有联系的，想要改变网站的布局，可能会改上百个 HTML，繁琐并且毫无技术含量。后来聪明的工程师，用代码实现代码，后端模板诞生，成功减少了前端的工作量。前端工程师开始用模板语言代替手写 HTML，后端网站目录的文件也变成了不同的模板文件。
+在最开始的时候，HTML、CSS、JavaScript 的文件以及数据载体 json(xml) 等文件都是放到后端服务器目录下的，而且这些文件彼此是没有联系的，想要改变网站的布局，可能会改上百个 HTML，繁琐且毫无技术含量。后来聪明的工程师，用代码实现代码，后端模板诞生，成功减少了前端的工作量。前端工程师开始用模板语言代替手写 HTML，后端服务器目录的文件也变成了不同的模板文件。
 
 这个时期，不管 Web 后端是什么语言的框架，都会有一个专门开辟出来的路由模块或者路由区域，用来匹配用户给出的 URL 地址，以及一些表单提交、ajax请求的地址。用户进行页面切换时，浏览器发送不同的 URL 请求，服务器接收到浏览器的请求时，通过解析不同的 url 地址进行后端路由匹配，将模板拼接好后将之返回给前端完整的 HTML，浏览器拿到这个 HTML 文件后直接解析展示了，也就是所谓的服务端渲染。
 
@@ -33,7 +33,7 @@ Vue   | 2014年 | 46,249,304  | 170 K | 持续增长
 
 以后端路由为基础，开发的 Web 应用，都会存在一个弊端。每跳转到不同的 URL，都是重新访问服务端，服务器拼接形成完整的 HTML，返回到浏览器。浏览器的前进、后退键都会重新访问服务器，没有合理地利用缓存。
 
-随着前端页面复杂性越来越高，功能越来越完善，后端网站目录下的代码文件会越来越多，耦合性也越来越严重。就算简单的颜色修改，也需要前后端的同步操作。不仅加大服务器的压力，也不利于良好的用户体验，代码维护。由于以 JavaScript 为代表的前端技术尚未崛起，程序猿也无法解决这一痛点。
+随着前端页面复杂性越来越高，功能越来越完善，后端服务器目录下的代码文件会越来越多，耦合性也越来越严重。不仅加大服务器的压力，也不利于良好的用户体验，代码维护。由于以 JavaScript 为代表的前端技术尚未崛起，程序猿也无法解决这一痛点。
 
 直到 1998 年，微软的 Outloook Web App 团队提出 Ajax 的基本概念（XMLHttpRequest 的前身），浏览器实现异步加载的一种技术方案，并在 IE5 通过 ActiveX 来实现了这项技术。有了 Ajax 后，页面操作就不用每次都刷新页面，体验带来了极大的提升。
 
@@ -68,7 +68,7 @@ Vue   | 2014年 | 46,249,304  | 170 K | 持续增长
 
 单页面开发是趋势，但也不能避重就轻，忽略前端渲染的缺点。由于服务器没有保留完整的 HTML，前端通过 js 进行 dom 的拼接，需要耗费额外的时间，不如服务端渲染速度快，也不利于 ESO 优化。所以说，实际开发中，不能盲目选择渲染方式，一定要基于业务场景。对于没有复杂交互，对于 SEO 要求严格的网站，服务器渲染也是正确的选择。
 
-## 路由基础原理解析  
+## 基础原理解析  
 
 路由描述了 URL 与 UI 之间的映射关系，这种映射是单向的，即 URL 变化引起 UI 更新（无需刷新页面）。前端路由最主要的显示方式有2种：
 
@@ -207,14 +207,70 @@ history.replaceState() 的使用与 history.pushState() 非常相似，都是改
     与 pushState 和 replaceState 不同，a 标签锚点的变化会立即触发 popstate 事件。这里我们扩展一下思路，a 标签做的事情就是改变了 hash 值，那通过 window.location 改变 hash 值是不是也是能立即触发 popstate。答案是肯定的，也会立即触发 popstate。   
     通过 hash 小节的了解，hash 值的改变会触发 hashchange 事件，所以，hash 值的改变会同时触发 popstate 事件与 hashchange 事件，但如果改变的 hash 值与当前 hash 值一样的话，hashchange 事件不触发，popstate 事件触发。之前我们说过，window.location 设置的 hash 值必须与当前 hash 值不一样才能新建一条历史记录，而 pushState 却可以。
 
-    > 结合上述，在浏览器支持 pushState 的情况下，hash 模式路由也可以使用 pushState 、replacestate 和 popstate 实现。点击```<router-link/>```触发 pushstate，进行跳转， popstate 监听 hash 值的变化，
-
+    > 结合上述，在浏览器支持 pushState 的情况下，hash 模式路由也可以使用 pushState 、replacestate 和 popstate 实现。pushstate 改变 hash 值，进行跳转，popstate 监听 hash 值的变化。小小的剧透，VueRouter 中不管是 hash 模式，还是 history 模式，只要浏览器支持 pushState ，使用的都是 pushState 进行的跳转。
     
 ## 前端路由应用
 
-VueRouter 和 reactRouter 是现在最流行的路由状态管理工具。两者实现原理虽然是一致的，但由于所依赖的技术栈不同，使用方式也略有不同。
+ 其实 history 和 hash 都是浏览器自有的特性，单页面路由只是利用了这些特性。在不跳出当前 document 的情况下，除了 history 自身的兼容性之外，各个浏览器都不会存在差异，而单页面开发就是在一个 document 中完成所有的交互，这两者的完美结合，将前端开发提升到了一个新的高度。
 
-### vue-router
+VueRouter 和 reactRouter 是现在最流行的路由状态管理工具。两者实现原理虽然是一致的，但由于所依赖的技术栈不同，使用方式也略有不同。在 react 技术栈开发时，大部分的童鞋还是喜欢使用 react-router-dom ，它基于react-router，加入了在浏览器运行环境下的一些功能。
+### 注入方式
 
+* vue-router  
+    vue 必须使用 vue.use() 明确安装路由功能。
+* react-router-dom  
+    只需要在 index.js 中直接进行部分配置即可使用。
 
+### 基础组件
 
+* vue-router 常用到的组件主要有 keep-alive、router-link 和 router-view。
+   
+    a. router-link 可以操作 dom 直接进行跳转，定义点击后导航到哪个路径下；对应的组件内容渲染到 router-view 中。
+    b. 被keep-alive包裹住的组件，会被vue进行缓存。当组件在keep-alive内被切换时组件的activated、deactivated这两个生命周期钩子函数会被执行，不会再执行挂载和销毁组件的生命周期函数。同时也可以使用keep-alive组件身上的include和excludes两个属性来区分哪些组件需要被缓存，哪些不需要。
+
+* react-router-dom 常用到的是 <Route />、<Link />、<Switch/>
+    a. <Link /> 组件与 vue-router 中的 <router-link/> 组件类似，定义点击后的目标导航路径，对应的组件内容通过 <Route /> 进行渲染。
+    b. <Switch/> 用来将 react-router 由包容性路由转换为排他性路由，每次只要匹配成功就不会继续向下匹配。vue-router 属于排他性路由。
+
+### 路由模式 
+
+* vue-router 主要分为 hash 和 history 两种模式。在 new VueRouter() 时，通过配置路由选项 mode 实现。
+    a. Hash 模式：地址栏 URL 中有 #。vue-router 优先判断浏览器是否支持 pushState，若支持，则通过 pushState 改变 hash 值，进行目标路由匹配，渲染组件，popstate 监听浏览器操作，完成导航功能，若不支持，使用 location.hash 设置 hash 值，hashchange 监听 URL 变化完成路由导航。
+    b. History 模式：地址栏 URL 中没有 #。与 Hash 模式实现导航的思路是一样的。不同的是，vue-router 提供了 fallback 配置，当浏览器不支持 history.pushState 控制路由是否应该回退到 hash 模式。默认值为 true。
+
+    > 网上给 Hash 模式大都是通过 location.hash 和 hashchange 实现，这也是我最近阅读 vue-router 源码发现的，欢迎小伙伴们阅读之后两篇文章，里面有说明哟！
+
+* react-router-dom 常用的 2 种模式是 browserHistory、hashHistory，直接用 <BrowserRouter> 或 <HashHistory> 将 <App> 包裹起来就能实现。
+    a. react-router 的实现依赖 history，history 是 JavaScript 库。<BrowserRouter> 、 <HashHistory> 是基于 history 的 BrowserHistory、HashHistory 实现的。
+    b. BrowserHistory 通过 pushState、replaceState 和 popstate 实现，但并没有类似 vue-router 的兼容处理。HashHistory 则是直接通过 location.hash、location.replace 和 hashchange 实现，没有使用 history 的新特性。
+
+### 子路由
+
+* vue-router 通过 new VueRouter() 配置路由表时的 Children 实现嵌套路由，但无论哪层的路由组件，都会被渲染到父组件 <router-view/> 标识的地方。
+* react-router 根组件会被渲染到 <Router/> 指定的位置，子路由则会作为子组件，将 children 对象以参数的方式传入父组件，由父组件指定该对象的渲染位置。
+
+### 路由守卫
+
+* VueRouter 导航守卫分为全局守卫、路由独享守卫、组件内的守卫三种。主要用来通过跳转或取消的方式守卫导航。
+    a. 全局守卫 
+        * beforeEach —— 全局前置钩子（每个路由调用前都会触发，根据from和to来判断是哪个路由触发）
+        * beforeResolve —— 全局解析钩子（和router.beforeEach类似，区别是在导航被确认之前，同时在所有组件内守卫和异步路由组件被解析之后，解析守卫就被调用）
+        * afterEach —— 全局后置钩子
+    b. 路由独享守卫
+        路由配置上可以直接定义 beforeEnter 守卫。
+    c. 组件内守卫
+        * beforeRouteEnter —— 在渲染该组件的对应路由被 confirm 前调用，不能获取组件实例 `this`，因为当守卫执行前，组件实例还没被创建。
+        * beforeRouteUpdate —— 当前路由改变，但是该组件被复用时调用
+        * beforeRouteLeave —— 导航离开该组件的对应路由时调用  
+* react-router 4.0 版本之前，提供了 onEnter 钩子，4.0 版本后取消了该方法。
+
+### 路由信息
+
+* VueRouter 在注册时，为每个 vue 实例注入了 $router、$route 对象。$router 为 router 实例，$route 提供当前激活的路由信息。
+* reactrouter 在 <Route /> 包裹的组件中提供了 history、location 对象。利用 this.props.history 的 push、replace 方法实现路由导航，this.props。location 获取当前激活的路由信息。
+
+> vue-router 和 react-router 呈现给开发者的功能实际上是大同小异的。说到底，不管用什么样的方式实现，前端路由的实现原理都是不会变的。
+
+前端路由的初步体验马上就要结束了，在决定深入研究前端路由之前，我其实自信满满，感觉应该不会花费很大的精力与时间，可事实是，涉及到的知识盲区也越来越多，我的信心在逐渐瓦解。不过结局还是好的，我收获了很多，也希望前端路由的初体验能让大家收获满满。对接下来的深入了解《SPA 路由三部曲之实战篇》、《SPA 路由三部曲之进阶篇》充满期待！
+
+PS：文章中有些是个人观点，如果不对，欢迎交流、指正！
