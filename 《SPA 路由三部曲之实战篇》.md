@@ -1,142 +1,10 @@
-
-
 > 单页 Web 应用（single page web application，SPA），是当今网站开发技术的弄潮儿，仅靠加载单个 HTML 页面就在网站开发中占据了一席之地。很多传统网站正在或者已经转型为单页 Web 应用。单页 Web 应用网站也如雨后春笋般出现在大众眼前。前后端分离技术、MVVM 模式、前端路由、webpack 打包器也随之孕育而生。如果你是一名 Web 应用开发人员，却还没有发开或者甚至不了解单页 Web 应用，那就要加油了！  
 
-为了配合单页 Web 应用快速发展的节奏，这几年，各类前端组件化技术栈层出不穷。通过不断的版本迭代 React、Vue 脱颖而出，成为当下很受欢迎的两大技术栈。
-
-技术栈 |  发布   | NPM 下载量（2020.1.1~2020.7.31）| GitHub Star| 发展趋势 
----   |  :--:  | :--:    |   :--:     | :--:
-React | 2011年 | 227,023,229 | 154 K | 持续增长
-Vue   | 2014年 | 46,249,304  | 170 K | 持续增长
-
-仅 7 个月的时间，两个技术栈的下载量就突破了百万，React 甚至突破了千万。可以想象这两个技术栈是多么受欢迎。
-
-不管是现下流行的 React、Vue，还是红极一时的 Angular、Ember。只要是单页 Web 应用开发，都离不开前端路由的配合。如果我们把单页 Web 应用比作一间房，每个页面分别对应房子中的每个房间，那么路由就是每个房间的门，所以不管房间装饰的有多漂亮，没有门，也无法展示在用户眼前，路由在单页面 Web 应用开发的重要性也就不言而喻了。
-
-OK，既然路由这么重要，那我们从这几个方面，来讲解前端路由吧。
-
-![](https://img12.360buyimg.com/imagetools/jfs/t1/149777/13/5226/148749/5f31054dEcecc1fea/289a687a8a070dcc.png)
-
-## 前端路由前世今生
-
-### 后端路由
-
-路由这个概念最先是在后端出现的，在 Web 开发早期的「刀耕火种」年代里，一直是后端路由占据主导地位。用户通过 URL 访问到的页面，大多都是通过后端路由匹配之后在返回给浏览器的。
-
-![服务端渲染](https://img12.360buyimg.com/imagetools/jfs/t1/145816/20/5225/177101/5f325408Eb6b62cc1/09641c19f311ff92.png)
-
-在前端路由出现之前，HTML，CSS，JavaScript 的文件以及数据载体 json(xml) 等文件，都是以模板的形式放到后端网站目录下的。在 Web 后端，不管是什么语言的后端框架，都会有一个专门开辟出来的路由模块或者路由区域，用来匹配用户给出的 URL 地址，以及一些表单提交、ajax请求的地址。请求一个 URL 地址时，URL 地址进行后端路由匹配，将模板拼接好后将之返回给前端完整的 HTML，浏览器拿到这个 HTML 文件后直接解析展示了。
-
-
-### 过渡
-
-以后端路由为基础，开发的 Web 应用，都会存在一个弊端。每跳转到不同的 URL，都是重新访问服务端，服务器拼接形成完整的 HTML，返回到浏览器。浏览器的前进、后退键都会重新访问服务器，没有合理地利用缓存。 
-
-随着前端页面复杂性越来越高，功能越来越完善，后端网站目录下的代码文件会越来越多，耦合性也越来越严重。就算简单的颜色修改，也需要前后端的同步操作。由于以 JavaScript 为代表的前端技术尚未崛起，程序猿没办法实现前端渲染。
-
-直到 1998 年，微软的 Outloook Web App 团队提出 Ajax 的基本概念（XMLHttpRequest 的前身），2005 年 Google Map 的发布让 Ajax 这项技术发扬光大，向人们展示了它真正的魅力，前后端分离的开发模式开始兴起。2008 年，Google V8 引擎发布，JavaScript 随之崛起，前端工程师开始借鉴后端模板思想，单页面应用就此诞生。
-
-于是，我们开始进入了前端路由的时代。
-
-### 前端路由
-
-单页应用不仅仅是在页面交互是无刷新的，连页面跳转都是无刷新的，为了实现这一功能，前端路由问世了。页面跳转的 URL 规则匹配由前端来控制。
-
-![客户端渲染](https://img11.360buyimg.com/imagetools/jfs/t1/122174/23/9461/155946/5f325431Ed7c3ac00/131fbced1f4ffe8c.png)
-
-前端路由的兴起，使得页面渲染由服务器渲染变成了前端渲染。为什么这么说呢！请求一个 URL 地址时，服务器不需要拼接模板，只需返回一个HTML即可，一般浏览器拿到的 html 是这样的：
-
-```
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Demo</title>
-  <link href="app.css" rel="stylesheet"/>
-</head>
-<body>
-  <div id="app"></div>
-  <script type="text/javascript" src="app.js"></script>
-</body>
-</html>
-
-```
-这里空荡荡的只有一个```<div id="app"></div>```，以及一系列的js文件，所以说这个html是不完整的。我们看到的页面是通过这一系列的js渲染出来的，也就是我们常说的前端渲染。前端渲染通过客户端的算力来解决页面的构建，很大程度上缓解了服务端的压力。加上前端路由的配合，实现了无缝页面切换体验的用户体验。
-
-## 路由原理解析  
-
-了解了前端路由的由来，那路由到底是个啥？在单页 Web 应用中，路由描述的是 URL 与 UI 之间的映射关系，这种映射是单向的，即 URL 变化引起 UI 更新（无需刷新页面）。 
-
-现在流行的前端路由模式分为两种：
-
-* Hash 模式：地址栏 URL 中有 #，即 hash 值。通过改变 hash 值实现路由跳转。
-* History 模式：地址栏 URL 中没有 #。通过 pushState() 和 replaceState() 改变浏览器历史记录栈，实现路由跳转。
-
-Hash 模式与 History 模式其实实现原理很简单，现在就跟着小编一起来揭开它神秘的面纱吧！
-
-### History
-
-用户访问网页的历史记录通常会被保存在一个类似于栈对象中，即 window.history 对象，点击返回就出栈，跳下一页就入栈。在单页面兴起之前，History 只提供了三个 API ：
-
-* history.back()：回退到上一个访问记录，同浏览器后退键
-* history.forward()：前进到下一个访问记录，同浏览器前进键
-* history.go(n)：跳转到相应的访问记录；若 n > 0，则前进，若 n < 0，则后退，若 n = 0，则刷新当前页面
-
-随着单页面的发展，大前端的到来，HTML5 对 History API 新增的两个方法：pushState()、replaceState()。  
-* pushState(stateData, title, url)：在 history 中创建一个新的访问记录，不能跨域，且不造成页面刷新;
-* replaceState(stateData, title, url)：修改当前的访问记录，不能跨域，且不造成页面刷新
-
-![History API](https://img10.360buyimg.com/imagetools/jfs/t1/141154/19/5653/297566/5f3a609cE41ebbe25/c23845924a284491.png)
-
-另外，HTML5 新增了可以监听 history 和 hash 变化的方法：window.onpopstate()、window.onhashchange()  
-
-![Window API](https://img14.360buyimg.com/imagetools/jfs/t1/119378/39/13661/236999/5f3a6046E97ab7aa0/6f519d1c5e2d6d88.png)
-
-我们发现触发 window.onpopstate()、window.onhashchange() 监听事件的方法有重合的部分。使用 history.back()、history.forward()、history.go(n)、&lt;a&gt;标签改变 hash 值，window.onpopstate()、window.onhashchange() 都会触发。     
-> 我们可以得到一个结论：在 hash 路由模式下，我们同样可以使用 window.onpopstate() 事件，监听路由的改变。在这里提前透露一下：vue-router 的 hash 模式下路由的改变，就是监听的 window.onpopstate() 事件。
-
-### Hash 
-
-一个完整的 URL 包括：协议、域名、端口、虚拟目录、文件名、参数、锚。  
-
-![URL 组成](https://img12.360buyimg.com/imagetools/jfs/t1/116233/29/15155/17882/5f3a73a9Ef5592b82/7dbf415ead483d09.png)  
-
-hash 值指的是 URL 地址中的锚部分，也就是 # 后面的部分。Hash 路由就是利用 hash 值的变化来实现页面的跳转。那么 hash 值都有哪些特点呢！
-
-* hash 值是网页的标志位，HTTP 请求不包含锚部分
-* 因为 HTTP 请求不包含锚部分，所以 hash 值改变时，不触发网页重载
-* 改变 hash 值会改变浏览器的访问历史，即 history 栈
-* 改变 hash 值会触发 window.onhashchange() 事件
-
-改变 hash 值的方式有三种：
-
-1. ```<a/>```标签使锚点值变化，例：```<a href='#/home'></a>``` 
-2. window.localhost.hash 
-3. 浏览器前进键（history.forword()）、后退键(history.back())
-4. 手动刷新当前的 URL（点击 Enter 键进行刷新）
-
-到现在我们可以知道，前三种改变 hash 值的方式，并不会导致浏览器向服务器发送请求，浏览器不发出请求，也就不会刷新页面。hash 值改变，触发全局 window 对象上的 hashchange 事件。通过 hashchange 事件来监听到 URL 的变化，从而进行 DOM 操作来模拟页面跳转。  
-
-手动刷新 URL，与在浏览器中输入 URL，Enter 回车的情况是一样的，初始化页面，浏览器会重新向服务器发送请求，服务器返回 index.html，不会触发 hashchange 事件，但是会触发 load 事件。
-
-![hash 流程图](https://img13.360buyimg.com/imagetools/jfs/t1/119923/18/9500/67035/5f335933Ee392a6e3/cf3e580523d52c0a.png)  
-
-### History 模式与 Hash 模式
-
-History 模式与 Hash 模式都属于浏览器自身的特性。不管是在哪种模式下，路由的跳转，都会在浏览器历史记录中创建一个新的历史记录项，history.length 的值也会 +1。若是使用 replaceState() 进行路由跳转，情况就不一样了。replaceState() 会修改当前的历史记录项，不会创建新的历史记录项，history.length 的值保持不变。
-
-![浏览器历史记录](https://storage.360buyimg.com/imgtools/a7de05d4b9-97a5bee0-e0f6-11ea-b779-5171ebe3afba.gif)
-
-浏览器历史记录可以看成是一个栈，遵循先进后出的规则，即最先进入的历史项，在栈的最底部。使用 pushState() 在浏览器记录中分别创建两个记录历史项 cart、list，压入历史记录栈中，此时历史栈为 cart -> list 。接着，使用 replaceState() 修改浏览器记录，将最后一次压入栈的 list 修改为 item，此时历史栈中更新为 cart -> item。触发浏览器后退键，最后一次压入栈的 list 出栈，cart 路由页面渲染。  
-
-单页面路由利用浏览器自身的特性，实现了 URL 与 UI 之间的映射关系：
-
-* Hash 模式：URL 的锚点值（hash 值） + window.onhashchange() 事件
-* History 模式：history.pushState() + history.replaceState() + window.onpopstate() 事件
+在《SPA 路由三部曲之初体验》中我们了解实现前端路由的基础知识。现在我们就利用这些基础知识，加上前端路由的不同技术栈的使用方式，基于 Vue 技术栈自己动手实现类似 vue-router 的前端路由 myRouter。
 
 ## 原生 JS 实现路由
 
-知道了 History 模式与 Hash 模式的实现原理，我们何不上手实现一下呢！
+在实现 myRouter 之前，先用原生 JS 实现一下。
 
 ### 原生 JS 实现 hash 路由
 
@@ -193,7 +61,6 @@ class JSHashRouter {
 }
 
 ```
-
 JSHashRouter 类自身定义了 routerView 属性，接收渲染路由 UI 的容器。JSHashRouter 类定义了2个方法：init() 和 push()
 
 * init()   
@@ -293,14 +160,11 @@ class JSHistoryRouter {
 ```
 JSHistoryRouter 类自身定义了 routerView 属性，接收渲染路由 UI 的容器。JSHistoryRouter 类定义了3个方法：init() 、push()、replace()。
 
-* init()  
-    init(）中主要做了2件事：
+* init() 中主要做了2件事：
     1. window.onpopstate() 事件，用于 history.go()、history.back()、history.forword() 的监听。  
     2. 点击 &lt;a&gt 标签，浏览器 URL 更新为 href 的 URL，e.preventDefault() 阻止默认事件。将 href url 通过 pushState() 更新浏览器 URL，重新渲染 routerView。
-* push()
-    通过 history.pushState() 更新浏览器 URL，重新渲染 routerView。
-* replace()
-    通过 history.replaceState() 更新浏览器 URL，重新渲染 routerView。
+* push() 函数，通过 history.pushState() 新增浏览器 URL，重新渲染 routerView。
+* replace()函数，通过 history.replaceState() 替换浏览器 URL，重新渲染 routerView。
 
 ok，现在只要实例化 JSHistoryRouter 类，调用方法就可以了！
 
@@ -337,7 +201,7 @@ index.html
 来来来，展示效果啦！
 ![](https://storage.360buyimg.com/imgtools/aaa3272210-7e7718e0-e102-11ea-8f90-d15419c43e51.gif)
 
-> 细心的同学应该已经发现了，在 HashRouter 类的 init() 方法中，处理了页面首次渲染的情况，但在 HistoryRouter 类中却没有。Hash 模式下，改变的是 URL 的 hash 值，浏览器请求是不携带 hash 值的，所以 http:localhost:8080/#/home 与 http:localhost:8080/#/cart，浏览器请求都是 http:localhost:8080。History 模式下，改变的则是 URL 除锚外的其他部分，所以 http:localhost:8080 与 http:localhost:8080/home 浏览器请求是不同的。这就也就可以解释在 vue-router 下，Hash 模式后端只需要将域名指向 index.html 即可，History 模式后端需要将域名下匹配不到的静态资源，返回到同一个 index.html 页面。
+> 细心的同学应该已经发现了，在 HashRouter 类的 init() 方法中，处理了页面首次渲染的情况，但在 HistoryRouter 类中却没有。Hash 模式下，改变的是 URL 的 hash 值，浏览器请求是不携带 hash 值的，所以 http:localhost:8080/#/home 与 http:localhost:8080/#/cart，浏览器请求都是 http:localhost:8080。History 模式下，改变的则是 URL 除锚外的其他部分，所以 http:localhost:8080 与 http:localhost:8080/home 浏览器请求是不同的。这就也就可以解释在 vue-router 下，Hash 模式后端只需要将域名指向 index.html 即可，History 模式后端需要重定向，将域名下匹配不到的静态资源，返回到同一个 index.html 页面。
 
 ### 基于 Vue 实现路由
 
@@ -377,7 +241,6 @@ Vue Router 与 React Router 可以说是现在最流行的单页面路由管理�
     ```
     const Foo = { template: '<div>foo</div>' } // 可以通过 import 等方式引入
     const Bar = { template: '<div>bar</div>' }
-
     const routes = [
         { path: '/foo', component: Foo },
         { path: '/bar', component: Bar }
@@ -424,7 +287,7 @@ export default MyRouter
 
 将项目中 Vue Router 替换成定义好的 MyRouter 插件，启动应用，页面空白，没有报错。
 
-> 我按照自己的开发逻辑，将 MyRouter 的基本结构拆分成2个 js 文件 install.js 与 index.js。install.js 文件用于实现 install 方法，index.js 用于实现 MyRouter 类。  
+> 按照自己的开发逻辑，将 MyRouter 的基本结构拆分成2个 js 文件 install.js 与 index.js。install.js 文件用于实现 install 方法，index.js 用于实现 MyRouter 类。  
 
 #### Vue.use() 
 
@@ -536,7 +399,7 @@ MyRouter.install = function(Vue,options){
 
 好了，回到我们之前的话题，我们通过观察 Vue Router 的引入，实现了 MyRouter 类的基本结构。接下来，我们在看看 Vue Router 是如何使用的。
 
-Vue Router 定义了2个组件：```<router-link/>```、```<router-view/>```。```<router-link/>```用来路由导航，默认会被渲染成 &lt;a&gt; 标签，通过传入 to 属性指定跳转链接。```<router-view/>```用来渲染匹配到的路由组件。
+Vue Router 定义了2个组件：```<router-link/>```、```<router-view/>```。```<router-link/>```用来路由导航，默认会被渲染成 &lt;a&gt; 标签，通过传入 to 属性定义目标路由。```<router-view/>```用来渲染匹配到的路由组件。
 
 ```
 <div id="app">
@@ -572,7 +435,6 @@ MyRouter.install = function(Vue,options){
     Vue.component(MyRouterLink.name, MyRouterLink)
 }
 ```
-
 好了，组件定义好了，我们来印证一下。
 
 App.vue
@@ -632,7 +494,7 @@ App.vue
 ```
 ![](https://img10.360buyimg.com/imagetools/jfs/t1/144416/18/5668/172131/5f3c94e3E51a4e870/be832c279b8dd5f5.png)
 
-正常渲染，没有报错，第一个使用 &lt;p&gt; 标签渲染。MyRouterLink 组件的基本实现先到这里，还有的疑问没有解决，渲染成了别的标签，Hash 模式该如何监听 URL 变化？改如何阻止 &lt;a&gt; 标签默认跳转？不要着急，之后会一一解答的。咱们先来按照 MyRouterLink 组件的实现思路，把 MyRouterView 组件实现。   
+正常渲染，没有报错，第一个使用 &lt;p&gt; 标签渲染。MyRouterLink 组件的基本实现先到这里，但还有很多疑问没有解决。渲染成了别的标签，Hash 模式该如何监听 URL 变化？改如何阻止 &lt;a&gt; 标签默认跳转？不要着急，之后会一一解答的。咱们先来按照 MyRouterLink 组件的实现思路，把 MyRouterView 组件实现。   
 
 MyRouterView 组件是根据 URL 匹配配置的路由数组。在每个组件中，我们可以通过 $myRouter 获取到 myRouter 实例了，那实现 MyRouterView 组件就简单多了。
 
@@ -1054,450 +916,10 @@ function guardEvent(e){
 
 ![](https://storage.360buyimg.com/imgtools/ff7a04d9d5-8f292dd0-e379-11ea-98e1-c5d2b444bf4a.gif)  
 
-完美实现，有点小小的佩服自己！
+完美实现，有点小小的佩服自己！与 vue-router 相比，还有很多的功能没有实现，比如 <keep-alive/>、路由导航守卫、过渡动画等等，myRouter 插件只是实现了简单的路由导航和页面渲染。往往一件事情最难的是第一步，MyRouter 已经开了一个不错的头，实现之后的功能也不是问题。
 
-## VueRouter 源码分析
-
-告诉大家一个小秘密，上面 MyRouter 的实现是在没有看源码代码的情况下，靠自己的对 vue-router 的使用、度娘实现的。跟 VueRouter 的源码的实现思路是有一些出入的，跟小编一起来探究一下，这些出入吧！
-
-### 整体结构
-
-在项目开发之前，项目的目录结构都是确定好的，每一个文件都有自己明确的功能。源码阅读也是一样，在这之前，要尽可能的先掌握整体结构。
-
-```
-├── src
-│   ├── components
-│   │   ├── link.js                // <router-link/> 的实现
-│   │   └── view.js                // <router-view/> 的实现
-│   ├── create-matcher.js          // 根据传入的配置对象创建路由映射表
-│   ├── create-route-map.js        // 根据routes配置对象创建路由映射表 ，生成 pathList/nameMap/pathMap
-│   ├── history                    
-│   │   ├── abstract.js            // 非浏览器 history 类
-│   │   ├── base.js                // 基本的 history 类
-│   │   ├── errors.js              // 错误、警告
-│   │   ├── hash.js                // hash 模式的 hashhistory 类
-│   │   └── html5.js               // history 模式的 history 类
-│   ├── index.js                   // 入口文件 vue-router 类
-│   ├── install.js                 // vue 插件 install 函数
-│   └── util                       // 工具类
-```
-VueRouter 的目录结构是很清晰、简单的。VueRouter 的入口文件是 src/index.js。
-
-### 不同之处
-
-我们实现的 MyRouter 与 VueRouter 的不同之处在哪里呢？主要是对 history.pushState 和 history.replaceState 的运用上。在 VueRouter 中，不管是 History 模式，还是 Hash 模式，在浏览器支持 history.pushState 的情况下，router.push 和 router.replace 最终执行的都是 history.pushState 与 history.replaceState 改变 URL，window.onpopstate 监听浏览器变化。
-
-还记得 MyRouter 的 HashRouter 类是如何实现路由切换的吗？
-
-```
-push(params){
-    window.location.href = this.getUrl(params)
-}
-replace(params){
-    window.location.replace(this.getUrl(params))
-}
-```
-
-通过直接改变 window.location.href 中的 hash 值，触发 hashChange 事件，实现路由切换，而 VueRouter 是通过 history.pushState 与 history.replaceState 实现的。
-
-```
-push(params){
-    history.pushState(null, '', this.getPath(params))
-    this.handleHashChange() 
-}
-replace(params){
-    history.replaceState(null, '', this.getPath(params))
-    this.handleHashChange() 
-}
-```
-为什么要采用 history.pushState，而不使用 window.location.href 呢？首先需要明确的一点是：在某种意义上，调用 history.pushState() 与 设置 window.location = "#foo" 这两者的作用是相同的，都是可以使用新的 URL 想服务器发送请求，并在浏览器历史记录中创建并激活一个现代的历史实体。但是前者要具有以下几点优势：
-
-* 新的 URL 可以是任何和当前 URL 同源的 URL，而设置 window.location 只能呆在同一个 document 里，因为你只改变了 hash，不会重新发起新的请求  
-* 可以不改变 URL，而创建新的历史实体，而通过设置 window.location = "#foo"，创建一个新的历史实体则必须要求当前的 hash 不是 #foo  
-* 可以在 history.pushState(state,title,url) 入参 state 中放入任何数据，而用设置 window.location 就只能在 URL 末尾放入短字符串形式的数据，比如:'?tag'
-* history.pushState(state,title,url) 入参 title 兼容不是很好，Firefox 会忽略。如果在未来，title 被所有浏览器兼容，那么在页面跳转时是可以传递一个短标题的
-
-除了 history.pushState 自身的优势之外，就 VueRouter 整体开发而言，history 模式下是用的是 history.pushState() 与 history.replaceState() 进行路由切换，那就将 hash 与之合并，统一处理。
-
-### VueRouter 类
-
-我们先从 VueRouter 的入口 index.js 开始解析。
-
-![](https://img11.360buyimg.com/imagetools/jfs/t1/136305/5/7923/513653/5f433989Ec08e2e21/58f33ddbdb66e578.png)
-
-VueRouter 的本质就是一个类，其中定义了很多的属性和方法。很多的方法与 MyRouter 是一样，大家可以参考 MyRouter 的创建过程，就不做详细介绍了，这里主要介绍 VueRouter 中核心的函数。
-
-#### this.matcher
-
-我们可以观察到 route 对象通过 this.match() 获取，match 又是通过 this.matcher.match()，而 this.matcher 是通过 createMatcher 函数处理，createMatcher 函数做了什么事情呢？
-
-**createMatcher()**
-createMatcher 函数相关的实现都在 src/create-matcher.js中。
-```
-/**
- * 创建 createMatcher 
- * @param {*} routes 路由配置选项
- * @param {*} router 路由实例
- */
-export function createMatcher (
-  routes: Array<RouteConfig>,
-  router: VueRouter
-): Matcher {
-  const { pathList, pathMap, nameMap } = createRouteMap(routes)
-  function addRoutes (routes) {
-    createRouteMap(routes, pathList, pathMap, nameMap)
-  }
-  function match (
-    raw: RawLocation,
-    currentRoute?: Route,
-    redirectedFrom?: Location
-  ): Route {}
-    ......
-  return {
-    match,
-    addRoutes
-  }
-}
-```
-从上面简化后的代码可以看出来，createMatcher 接收2个参数，routes 是 new VueRouter 实例化时，用户定义的路由配置，router 是 new VueRouter 返回的实例。routes 是一个定义了路由配置的数组，通过 createRouteMap 函数处理为 pathList, pathMap, nameMap。createMatcher 最终返回了一个对象 {match, addRoutes} 。也就是说 matcher 是一个对象，它对外暴露了 match 和 addRoutes 方法。
-
-match 和 addRoutes 方法的定义都用到了 pathList, pathMap, nameMap ，那我们就先来看一下，createRouteMap 是如何定义这3个对象的。
-
-**createRouteMap()**
-createRouteMap 函数相关的实现都在 src/create-route-map.js中。
-
-```
-export function createRouteMap (
-  routes: Array<RouteConfig>,
-  oldPathList?: Array<string>,
-  oldPathMap?: Dictionary<RouteRecord>,
-  oldNameMap?: Dictionary<RouteRecord>
-): {
-  pathList: Array<string>,
-  pathMap: Dictionary<RouteRecord>,
-  nameMap: Dictionary<RouteRecord>
-} {
-  // pathList 被用于控制路由匹配优先级
-  const pathList: Array<string> = oldPathList || []
-  // 路径路由映射表
-  const pathMap: Dictionary<RouteRecord> = oldPathMap || Object.create(null)
-  // 路由名称路由映射表
-  const nameMap: Dictionary<RouteRecord> = oldNameMap || Object.create(null)
-  routes.forEach(route => {
-    addRouteRecord(pathList, pathMap, nameMap, route)
-  })
-  // 确保通配符路由总是在最后
-  for (let i = 0, l = pathList.length; i < l; i++) {
-    if (pathList[i] === '*') {
-      pathList.push(pathList.splice(i, 1)[0])
-      l--
-      i--
-    }
-  }
-  ......
-  return {
-    pathList,
-    pathMap,
-    nameMap
-  }
-}
-```
-createRouteMap 函数主要是把用户的路由匹配选项按照一定的规则转换成几张路由映射表，后面路由切换就是依据这几个映射表，这几张路由表是很重要的。从上面的代码可以看出，createRouteMap 为每一个 route 执行 addRouteRecord 方法生成一条记录。
-
-**addRouteRecord()**
-```
-function addRouteRecord (
-  pathList: Array<string>,
-  pathMap: Dictionary<RouteRecord>,
-  nameMap: Dictionary<RouteRecord>,
-  route: RouteConfig,
-  parent?: RouteRecord,
-  matchAs?: string
-) {
-    const { path, name } = route
-    ......
-    // 先创建一条路由记录
-    const record: RouteRecord = {...}
-    // 如果该 route 是嵌套路由（有子路由），循环遍历解析嵌套路由
-    if (route.children) {
-        ......
-        route.children.forEach(child => {
-            const childMatchAs = matchAs
-                ? cleanPath(`${matchAs}/${child.path}`)
-                : undefined
-            addRouteRecord(pathList, pathMap, nameMap, child, record, childMatchAs)
-        })
-    }
-    // 如果有多个相同的路径，只有第一个起作用，后面的全部忽略
-    // 为 pathList、pathMap 添加一条记录
-    if (!pathMap[record.path]) {
-        pathList.push(record.path)
-        pathMap[record.path] = record
-    }
-    // 如果 route 中设置了 name 属性，为 nameMap 添加一条记录
-    // 如果有多个相同的 name，只有第一个起作用，后面的全部忽略
-    if (name) {
-        if (!nameMap[name]) {
-            nameMap[name] = record
-        } 
-    }
-}
-```
-addRouteRecord 函数，先创建一条路由记录对象。如果当前的路由记录有嵌套路由的话，就循环遍历继续创建路由记录，并按照路径和路由名称进行路由记录映射。这样所有的路由记录都被记录了。路由记录对象 RouteRecord 都记录了哪些内容：
-
-```
-const record: RouteRecord = {
-    path: normalizedPath,    
-    regex: compileRouteRegex(normalizedPath, pathToRegexpOptions), 
-    components: route.components || { default: route.component },
-    instances: {},
-    name,
-    parent,
-    matchAs,
-    redirect: route.redirect,
-    beforeEnter: route.beforeEnter,
-    meta: route.meta || {},
-    props:
-      route.props == null
-        ? {}
-        : route.components
-          ? route.props
-          : { default: route.props }
-}
-```
-
-RouteRecord 是一个对象，包含了一条路由的所有信息: 路径、路由正则、组件实例、路由名称、重定向等等。
-
-* regex：通过 path-to-regexp 生成路由正则，为了匹配嵌套路由，比如：{ path: '/my/:userId'}
-* parent：嵌套路由中父路由的路由记录对象
-* matchAs：嵌套路由子路由匹配标记
-
-createRouteMap 方法执行后，我们就可以得到由所有路由记录组成的 RouteRecord 树型结构。并得到 path、name 对应的路由映射。通过 path 和 name 能在 pathMap 和 nameMap 快速查到对应的 RouteRecord。
-
-好了，我们回到 createMatcher，还记得返回值中有一个 match 函数吗？接下来看一下 match 的实现。
-
-**match()**
-
-```
-/**
- * @param {*} raw 目标路由，字符串或对象
- * @param {*} currentRoute  当前路由
- * @param {*} redirectedFrom  重定向（可忽略）
- */
- function match (
-    raw: RawLocation,
-    currentRoute?: Route,
-    redirectedFrom?: Location
-  ): Route {
-    // 将目标路由统一成标准的形式
-    const location = normalizeLocation(raw, currentRoute, false, router)
-    const { name } = location
-
-    // 如果有路由名称 name, 就进行 nameMap 映射 
-    // 获取到路由记录，处理路由 params 返回 _createRoute 的返回值
-    if (name) {
-      const record = nameMap[name]
-      ......
-      if (!record) return _createRoute(null, location)
-      // 获取嵌套路由中动态路径的 name，如{path:"/my/:userId"}中，最终 paramNames 的值为 ”userId“
-      const paramNames = record.regex.keys
-        .filter(key => !key.optional)
-        .map(key => key.name)
-      ......
-      //当前路由存在 params 参数，若 目标路由没有设置此参数 && 路由配置选项 path 中设置，则目标路由设置此 params 参数
-      if (currentRoute && typeof currentRoute.params === 'object') {
-        for (const key in currentRoute.params) {
-          if (!(key in location.params) && paramNames.indexOf(key) > -1) {
-            location.params[key] = currentRoute.params[key]
-          }
-        }
-      }
-      location.path = fillParams(record.path, location.params, `named route "${name}"`)
-      return _createRoute(record, location, redirectedFrom)
-
-    // 如果路由配置了 path，到 pathList 和 PathMap 里匹配到路由记录 
-    // 如果符合 matchRoute 就返回 _createRoute 的返回值
-    } else if (location.path) {
-      location.params = {}
-      for (let i = 0; i < pathList.length; i++) {
-        const path = pathList[i]
-        const record = pathMap[path]
-        if (matchRoute(record.regex, location.path, location.params)) {
-          return _createRoute(record, location, redirectedFrom)
-        }
-      }
-    }
-    // 没有任何匹配
-    return _createRoute(null, location)
-  }
-```
-从上面的代码可以知道，match 函数入参为：目标路由(raw)，当前路由(currentRoute)、重定向路由(redirectedFrom)，其中目标路由(raw)为必传，根据 pathList, pathMap, nameMap 映射表，匹配到正确的 RouteRecord 记录。作为 _createRoute 函数的入参，返回 _createRoute 的返回值，也就是 _createRoute 的返回值就是 match 函数的返回值。
-
-**createRoute**
-
-_createRoute 函数很简单，_createRoute 函数根据有是否有路由重定向、路由重命名做不同的处理。其中 redirect 函数和 alias 函数最后还是调用了 _createRoute，最后都是调用了 createRoute。createRoute 函数相关的实现在 util/route.js 中
-
-```
-/**
- * @param {*} record 目标路由记录对象（非必传，null）
- * @param {*} location  目标路由对象（必传）
- * @param {*} redirectedFrom  重定向
- * @param {*} router  VueRouter 实例
- */
-export function createRoute (
-  record: ?RouteRecord,
-  location: Location,
-  redirectedFrom?: ?Location,
-  router?: VueRouter
-): Route {
-  const stringifyQuery = router && router.options.stringifyQuery
-  let query: any = location.query || {}
-  ......
-  // 定义路由对象，即 this.$route
-  const route: Route = {
-    name: location.name || (record && record.name),
-    meta: (record && record.meta) || {},
-    path: location.path || '/',
-    hash: location.hash || '',
-    query,
-    params: location.params || {},
-    fullPath: getFullPath(location, stringifyQuery),
-    matched: record ? formatMatch(record) : []
-  }
-  ......
-  return Object.freeze(route)
-}
-```
-createRoute 可以根据 record 和 location 创建出来最终返回 Route 对象，即 this.$route，通过 Object.freeze(route) 使其外部不可以修改，只能访问。Route 对象中有一个非常重要的属性是 matched，它是通过 formatMatch(record) 计算的：
-
-```
-function formatMatch (record: ?RouteRecord): Array<RouteRecord> {
-  const res = []
-  while (record) {
-    res.unshift(record)
-    record = record.parent
-  }
-  return res
-}
-```
-通过 record 循环向上找 parent，直到找到最外层，并把所有的 record 都 push 到一个数组中，最终返回 record 数组，这个 matched 为后面的嵌套路由渲染组件提供了重要的作用。
+欢迎大家期待之后《SPA 路由三部曲之进阶篇》，在这篇文章中，小编将带领大家进入 vue-router 的源码世界。相信在了解了 vue-router 的实现思路后，大家就都可以实现自己的前端路由。
 
 
-> matcher 的主流程就是通过 createMatcher 返回一个对象 {match, addRoutes}, addRoutes 是动态添加路由用的，平时使用频率比较低，match 很重要，返回一个路由对象，这个路由对象上记录当前路由的基本信息，以及路径匹配的路由记录，为路径切换、组件渲染提供了依据。
-
-#### history.transitionTo()
-
-好了，我们再次回到 VueRouter 的入口文件 index.js 文件。执行 new VueRouter() 实例化时，根据不同的 mode 配置，history 实例，接着调用了 init() 方法。我们发现不管是哪种路由模式，init 函数最后都调用了 history.transitionTo，进行路由初始化匹配。而且包括 history.push、history.repalce 最后都是通过它进行的路由切换。
-
-history.transitionTo 函数相关实现在 history/base.js 中。
-
-```
-transitionTo (
-    location: RawLocation,
-    onComplete?: Function,
-    onAbort?: Function
-) {
-    // 调用 match 方法返回目标路由 route 对象
-    let route = this.router.match(location, this.current)
-    // 过渡处理
-    this.confirmTransition(
-        route,
-        () => {
-            const prev = this.current
-            // 更新当前路由为目标路由 this.current = route
-            this.updateRoute(route)
-            onComplete && onComplete(route)
-            // 更新 url 地址，在浏览器支持的情况下，两种路由均通过 pushState/replaceState 来更新
-            this.ensureURL()
-            // 全局路由钩子
-            this.router.afterHooks.forEach(hook => {
-                hook && hook(route, prev)
-            })
-            .....
-        },
-        // 错误跳转处理
-        err => {......}
-    )
-}
-```
-transitionTo 接收3个入参：location、onComplete、onAbort，分别是目标路由、路经切换成功的回调、路径切换失败的回调。transitionTo 函数主要做了两件事：首先根据目标路径 location 和当前的路由对象通过 this.router.match 方法去匹配到目标 route 对象。执行 confirmTransition 方法进行真正的路由切换。
-
-```
-confirmTransition (route: Route, onComplete: Function, onAbort?: Function) {
-    const current = this.current
-    // 错误处理
-    const abort = err => {...}
-    const lastRouteIndex = route.matched.length - 1
-    const lastCurrentIndex = current.matched.length - 1
-    // 如果目标路由与当前路由相同，直接 return
-    if (
-      isSameRoute(route, current) &&
-      lastRouteIndex === lastCurrentIndex &&
-      route.matched[lastRouteIndex] === current.matched[lastCurrentIndex]
-    ) {
-      this.ensureURL()
-      return abort(createNavigationDuplicatedError(current, route))
-    }
-    
-    // 通过对比路由解析出可复用的组件，需要渲染的组件，失活的组件
-    const { updated, deactivated, activated } = resolveQueue(
-      this.current.matched,
-      route.matched
-    )
-    // 在异步队列中执行响应的钩子函数
-    // 通过 queue 保存相应的路由钩子函数
-    const queue: Array<?NavigationGuard> = [].concat(...)
-
-    this.pending = route
-    const iterator = (hook: NavigationGuard, next) => {......}
-    runQueue(queue, iterator, () => {......})
-  }
-```
-confirmTransition 函数是路由切换的核心函数。其接收3个入参：route、onComplete、onAbort，分别是：目标路由、成功匹配路由后的操作，匹配路由后的操作。confirmTransition 函数比较复杂，我们拆开来看，先看一下 resolveQueue 函数。
-
-**resolveQueue()**
-
-```
-function resolveQueue (
-  current: Array<RouteRecord>,
-  next: Array<RouteRecord>
-): {
-  updated: Array<RouteRecord>,
-  activated: Array<RouteRecord>,
-  deactivated: Array<RouteRecord>
-} {
-  let i
-  const max = Math.max(current.length, next.length)
-  for (i = 0; i < max; i++) {
-      // 当前路由路径和目标路由路径不同时跳出遍历
-    if (current[i] !== next[i]) {
-      break
-    }
-  }
-  return {
-    updated: next.slice(0, i), // 可复用的组件
-    activated: next.slice(i), // 需要渲染的组件对应路由
-    deactivated: current.slice(i) // 失活的组件对应路由
-  }
-}
-```
-resolveQueue 接受2个入参：current 和 next，分别为：当前路由的 matched 和目标路由 matched。在介绍 createRoute 函数时，我们着重说明了 formatMatch 函数，matched 中记录了当前子路由记录的所有父路由记录。resolveQueue 函数通过遍历对比两个路由记录数组，当有两个路由记录不一样的时候就记录这个位置 i，并终止遍历。对于目标路由(next) 从 0 到 i 和当前路由(current) 都是一样的，从 i 开始不同，目标路由(next) 从 i 之后为 activated 部分，当前路由(current) 从 i 之后为 deactivated 部分，相同部分为 updated，由 resolveQueue 处理之后就能得到路由变更需要更改的部分。紧接着根据路由的变更执行一系列的钩子函数。
-
-```
-const queue: Array<?NavigationGuard> = [].concat({
-    // 失活的组件钩子
-    extractLeaveGuards(deactivated),
-    // 全局 beforeEach 钩子
-    this.router.beforeHooks,
-    // 在当前路由改变，但是该组件被复用时调用
-    extractUpdateHooks(updated),
-    // 需要渲染组件 enter 守卫钩子
-    activated.map(m => m.beforeEnter),
-    // 解析异步路由组件
-    resolveAsyncComponents(activated)
-})
-```
-
-到现在为止，我们已将 VueRouter 初始化、路由切换的核心代码讲解完了。路由始终会维护当前的线路，路由切换的时候会把当前线路切换到目标线路，切换过程中会执行一系列的导航守卫钩子函数，会更改 url，同样也会渲染对应的组件，切换完毕后会把目标线路更新替换当前线路，这样就会作为下一次的路径切换的依据。
 
 

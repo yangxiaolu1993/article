@@ -39,7 +39,7 @@ Vue   | 2014年 | 46,249,304  | 170 K | 持续增长
 
 2005 年 Google Map 的发布让 Ajax 这项技术发扬光大，向人们展示了它真正的魅力，让其不仅仅局限于简单的数据和页面交互，也为后来异步交互体验方式的繁荣发展奠定了基础。2008 年，Google V8 引擎发布，JavaScript 随之崛起，前端工程师开始借鉴后端模板思想，单页面应用就此诞生。2009 年，Google 发布 Angularjs 将 MVVM 及单页应用发扬光大，由衷的佩服 Google 的强大。
 
-单页应用不仅在页面交互是无刷新的，连页面跳转都是无刷新的，为了实现单页应用，所以就有了前端路由。
+单页应用不仅在页面交互是无刷新的，连页面跳转都是无刷新的，为了实现单页应用，就有了前端路由。
 
 ### 前端路由
 
@@ -209,13 +209,16 @@ history.replaceState() 的使用与 history.pushState() 非常相似，都是改
 
     > 结合上述，在浏览器支持 pushState 的情况下，hash 模式路由也可以使用 pushState 、replacestate 和 popstate 实现。pushstate 改变 hash 值，进行跳转，popstate 监听 hash 值的变化。小小的剧透，VueRouter 中不管是 hash 模式，还是 history 模式，只要浏览器支持 pushState ，使用的都是 pushState 进行的跳转。
     
+
+![](https://img11.360buyimg.com/imagetools/jfs/t1/121514/25/11361/61597/5f4b25a2Ee4e4a996/3a02c4fb17457d10.png)
+
 ## 前端路由应用
 
  其实 history 和 hash 都是浏览器自有的特性，单页面路由只是利用了这些特性。在不跳出当前 document 的情况下，除了 history 自身的兼容性之外，各个浏览器都不会存在差异，而单页面开发就是在一个 document 中完成所有的交互，这两者的完美结合，将前端开发提升到了一个新的高度。
 
 VueRouter 和 reactRouter 是现在最流行的路由状态管理工具。两者实现原理虽然是一致的，但由于所依赖的技术栈不同，使用方式也略有不同。在 react 技术栈开发时，大部分的童鞋还是喜欢使用 react-router-dom ，它基于react-router，加入了在浏览器运行环境下的一些功能。
-### 注入方式
 
+### 注入方式
 * vue-router  
     vue 必须使用 vue.use() 明确安装路由功能。
 
@@ -277,7 +280,7 @@ VueRouter 和 reactRouter 是现在最流行的路由状态管理工具。两者
 
 * VueRouter 导航守卫分为全局守卫、路由独享守卫、组件内的守卫三种。主要用来通过跳转或取消的方式守卫导航。
     a. 全局守卫 
-        * beforeEach —— 全局前置钩子（每个路由调用前都会触发，根据from和to来判断是哪个路由触发）
+        * beforeEach —— 全局前置钩子（每个路由调用前都会触发，根据 from 和 to 来判断是哪个路由触发）
         * beforeResolve —— 全局解析钩子（和router.beforeEach类似，区别是在导航被确认之前，同时在所有组件内守卫和异步路由组件被解析之后，解析守卫就被调用）
         * afterEach —— 全局后置钩子
     b. 路由独享守卫
