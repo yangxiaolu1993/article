@@ -2,7 +2,7 @@
 
 在《SPA 路由三部曲之初体验》中我们了解到前端路由流行的模式有两种 hash 模式和 history 模式，两者分别利用浏览器自有特性实现单页面导航。
 
-* hash 模式：window.loaction 或 ```<a/>``` 标签改变锚点值，hashchange 监听埋点变化
+* hash 模式：window.loaction 或 a 标签改变锚点值，hashchange 监听埋点变化
 * history 模式：history.pushState()、history.repalceState() 定义目标路由，popstate 监听浏览器操作导致的 URL 变化
 
 现在我们就利用这些基础知识，加上前端路由在不同技术栈的使用方式，动手实现属于自己的前端路由 myRouter。
@@ -15,7 +15,7 @@
 
 在使用原生 JS 实现 hash 路由，我们需要先明确，触发路由导航的方式：
 
-* 使用 &lt;a&gt; 标签，触发锚点改变，监听 window.onhashchange() 进行路由匹配
+* 使用 a 标签，触发锚点改变，监听 window.onhashchange() 进行路由匹配
 * JS 动态改变 hash 值，window.location.hash 赋值，进行路由匹配
 
 那我们就一步一来，先来完成 HTML 的设计：
@@ -28,8 +28,8 @@ index.html
       <h3>Hash 模式路由跳转</h3>
       <ul class="tab">
           <!-- 定义路由 -->
-          <li><a href="#/home"> &lt;a&gt; 标签点击跳转 home</a></li>
-          <li><a href="#/about"> &lt;a&gt; 标签点击跳转 about</a></li>
+          <li><a href="#/home"> a 标签点击跳转 home</a></li>
+          <li><a href="#/about"> a 标签点击跳转 about</a></li>
       </ul>
       <!-- JS 动态改变 hash 值，实现跳转 -->
       <div id="handleToCart"> JS 动态点击跳转 cart</div>
@@ -74,7 +74,7 @@ JSHashRouter 类自身定义了 routerView 属性，接收渲染路由 UI 的容
 * push()  
  在实际开发过程中，进行路由跳转需要使用 JS 动态设置。通过为 window.location.hash 设置值，实现路由跳转。 这里需要注意，window.location.hash 改变 hash 值，也会触发 window.onhashchange() 事件。
 
-所以不管是 &lt;a&gt; 标签改变 hash，还是 window.location.hash 改变 hash，统一在 window.onhashchange() 事件中，重新渲染 routerView。
+所以不管是 a 标签改变 hash，还是 window.location.hash 改变 hash，统一在 window.onhashchange() 事件中，重新渲染 routerView。
 
 接下来只要 JSHashRouter 实例化，调用就可以了：  
 index.html
@@ -114,9 +114,9 @@ index.html
 实现 History 模式的路由同样需要明确触发跳转路由的方式：
 
 * JS 动态触发 pushState()、replaceState()
-* 拦截 &lt;a&gt; 标签点击事件，检测 URL 变化，使用 pushState() 进行跳转。
+* 拦截 a 标签点击事件，检测 URL 变化，使用 pushState() 进行跳转。
 
-History 模式触发路由跳转的方式与 Hash 模式稍有不同。通过之前的介绍，大家都了解，pushState()、replaceState()、&lt;a&gt; 标签改变 URL 都不会触发 window.onpopstate() 事件。那该怎么办，在实际开发过程中，我们是需要在 HTML 中进入跳转的。好在我们可以拦截 &lt;a&gt; 标签的点击事件，阻止 &lt;a&gt; 标签默认事件，检测 URL，使用 pushState() 进行跳转。
+History 模式触发路由跳转的方式与 Hash 模式稍有不同。通过之前的介绍，大家都了解，pushState()、replaceState()、a 标签改变 URL 都不会触发 window.onpopstate() 事件。那该怎么办，在实际开发过程中，我们是需要在 HTML 中进入跳转的。好在我们可以拦截 a 标签的点击事件，阻止 a 标签默认事件，检测 URL，使用 pushState() 进行跳转。
 
 index.html
 ```
@@ -327,13 +327,13 @@ Vue 官网说明：如果插件是一个对象，必须提供 install 方法。�
 
 #### $myRouter 与 $myRoute
 
-项目中使用了 VueRouter 插件后，在每个 vue 实例中都会包含两个对象 $router 和 $route。
+项目中使用了 vue-router 插件后，在每个 vue 实例中都会包含两个对象 $router 和 $route。
 
 * $route 是当前路由对象，每一个路由都是一个 route 对象，是局部对象。
 * $router 是 VueRouter 的实例化对象，是全局对象，包含了所有 route 对象。
 
 **$myRouter**
-在配置 VueRouter 时，最后一步是将 router 挂载在根实例上，在实例化根组件的时候，将 router 作为其参数的一部分。也就是目前只有根组件有 router 实例，其他子组件都没有。问题来了，如何将 router 实例放到每个组件呢？
+在注册 vue-router 时，最后一步是将 router 挂载在根实例上，在实例化根组件的时候，将 router 作为其参数的一部分。也就是目前只有根组件有 router 实例，其他子组件都没有。问题来了，如何将 router 实例放到每个组件呢？
 
 install.js
 ```
@@ -371,7 +371,7 @@ Vue 初始化 beforeCreate 阶段，会将 Vue 之前定义的原型方法、全
 
 **$myRoute**  
 
-$myRoute 用于存储当前路径。参照 VueRouter 的 $route，$myRoute 对象包括：path、name、hash、meta、fullPath、query、params。
+$myRoute 用于存储当前路径。参照 vue-router 的 $route，$myRoute 对象包括：path、name、hash、meta、fullPath、query、params。
 
 install.js
 ```
@@ -403,7 +403,7 @@ MyRouter.install = function(Vue,options){
 
 好了，回到我们之前的话题，我们通过观察 Vue Router 的引入，实现了 MyRouter 类的基本结构。接下来，我们在看看 Vue Router 是如何使用的。
 
-Vue Router 定义了2个组件：```<router-link/>```、```<router-view/>```。```<router-link/>```用来路由导航，默认会被渲染成 &lt;a&gt; 标签，通过传入 to 属性定义目标路由。```<router-view/>```用来渲染匹配到的路由组件。
+Vue Router 定义了2个组件：```<router-link/>```、```<router-view/>```。```<router-link/>```用来路由导航，默认会被渲染成 a 标签，通过传入 to 属性定义目标路由。```<router-view/>```用来渲染匹配到的路由组件。
 
 ```
 <div id="app">
@@ -417,7 +417,7 @@ Vue Router 定义了2个组件：```<router-link/>```、```<router-view/>```。`
 ![](https://img11.360buyimg.com/imagetools/jfs/t1/127251/15/10009/254224/5f3bc8a1E045a62d5/902cde9f5d338f7b.png)
 
 那我们就仿照 Vue Router，也在 MyRouter 插件中，添加两个全局组件 ```<my-router-view>```、```<my-router-link>```。通过上面对 Vue.use() 定义插件的介绍，相信大家已经知道该如何在插件中定义组件了，那就先来定义```<my-router-link>```组件吧。  
-我们知道```<router-link/>```会被渲染成 &lt;a&gt; 标签，```<router-link to="/foo">Go to Foo</router-link>```在最终在浏览器中渲染的结果是```<a href="/foo">Go to Foo</a>```。所以在```<my-router-link>```组件中放的是 &lt;a&gt; 标签，```<solt/>```代替模板内容，那我们就按照开发组件的方式，一步一步来吧！
+我们知道```<router-link/>```会被渲染成 a 标签，```<router-link to="/foo">Go to Foo</router-link>```在最终在浏览器中渲染的结果是```<a href="/foo">Go to Foo</a>```。所以在```<my-router-link>```组件中放的是 a 标签，```<solt/>```代替模板内容，那我们就按照开发组件的方式，一步一步来吧！
 
 link.vue
 ```
@@ -498,7 +498,7 @@ App.vue
 ```
 ![](https://img10.360buyimg.com/imagetools/jfs/t1/144416/18/5668/172131/5f3c94e3E51a4e870/be832c279b8dd5f5.png)
 
-正常渲染，没有报错，第一个使用 &lt;p&gt; 标签渲染。MyRouterLink 组件的基本实现先到这里，但还有很多疑问没有解决。渲染成了别的标签，Hash 模式该如何监听 URL 变化？改如何阻止 &lt;a&gt; 标签默认跳转？不要着急，之后会一一解答的。咱们先来按照 MyRouterLink 组件的实现思路，把 MyRouterView 组件实现。   
+正常渲染，没有报错，第一个使用 &lt;p&gt; 标签渲染。MyRouterLink 组件的基本实现先到这里，但还有很多疑问没有解决。渲染成了别的标签，Hash 模式该如何监听 URL 变化？改如何阻止 a 标签默认跳转？不要着急，之后会一一解答的。咱们先来按照 MyRouterLink 组件的实现思路，把 MyRouterView 组件实现。   
 
 MyRouterView 组件是根据 URL 匹配配置的路由数组。在每个组件中，我们可以通过 $myRouter 获取到 myRouter 实例了，那实现 MyRouterView 组件就简单多了。
 
@@ -557,7 +557,7 @@ App.vue
 终于到了完善 MyRouter 类了，在完善之前，我们先来确定一下，MyRouter 类需要做哪些事情。
 
 1. 接收 myRouter 实例化时传入的选项 options，数组类型的路由表 routes、代表当前路由模式的 mode
-2. VueRouter 使用时，不光可以使用 path 匹配，还可以通过 name 匹配，为了方便之后的操作，将路由表转换成 key:value 的形式，key 为路由表 routes 配置的 path 或 name
+2. vue-router 使用时，不光可以使用 path 匹配，还可以通过 name 匹配，为了方便之后的操作，将路由表转换成 key:value 的形式，key 为路由表 routes 配置的 path 或 name
 3. 为了区分路由的两种模式，创建 HashRouter 类、HistoryRouter 类，合称为 Router 类。
 4. myRouter 实例化判断是 hash 模式还是 history 模式，history 存储实例化的 Router 类
 5. 存储当前路由，通过 $myRoute 挂载到每一个实例上，解决之前留的小尾巴
@@ -793,7 +793,7 @@ export default class HashRouter {
 }
 
 ```
-参照 VueRouter，动态导航方法可以是字符串，也可以是描述地址的对象，getUrl 函数处理 params 的各种情况。
+参照 vue-router，动态导航方法可以是字符串，也可以是描述地址的对象，getUrl 函数处理 params 的各种情况。
 
 HashRouter 类基本功能终于实现完了，其实知道了 HashRouter 类的思路，HistoryRouter 类实现起来就不难了。
 
@@ -878,9 +878,9 @@ export default class HistoryRouter {
     }
 }
 ```
-细心的同学可能发现了问题，在原生 JS JSHistoryRouter 类中，将 &lt;a&gt; 标签的点击事件进行了改造，阻止了默认事件，使用 pushState 实现路由导航。HistoryRouter 类中为什么没有添加这个逻辑呢？不知道还记不记得 ```<my-router-link/>``` 的实现，按照现在 ```<my-router-link/>``` 的设计思路，最终渲染出来的不止是 &lt;a&gt; 标签，还可以是用户定义的 &lt;p&gt、&lt;li&gt 等等。但只有 &lt;a&gt; 标签才能修改 URL ，其他标签都做不到，没办法进行路由导航。换个思路，就算在 HistoryRouter 类中阻止了 &lt;a&gt; 标签的默认事件，也无法判断当前的 &lt;a&gt; 标签是用于路由导航呢，还是用户自己添加的呢？
+细心的同学可能发现了问题，在原生 JS JSHistoryRouter 类中，将 a 标签的点击事件进行了改造，阻止了默认事件，使用 pushState 实现路由导航。HistoryRouter 类中为什么没有添加这个逻辑呢？不知道还记不记得 ```<my-router-link/>``` 的实现，按照现在 ```<my-router-link/>``` 的设计思路，最终渲染出来的不止是 a 标签，还可以是用户定义的 &lt;p&gt;、&lt;li&gt; 等等。但只有 a 标签才能修改 URL ，其他标签都做不到，没办法进行路由导航。换个思路，就算在 HistoryRouter 类中阻止了 a 标签的默认事件，也无法判断当前的 a 标签是用于路由导航呢，还是用户自己添加的呢？
 
-综上所述，我们需要对 ```<my-router-link/>``` 组件的 render 函数进行升级改造，阻止 &lt;a&gt; 标签的默认事件，导航标签都通过 pushState 改变进行路由导航。
+综上所述，我们需要对 ```<my-router-link/>``` 组件的 render 函数进行升级改造，阻止 a 标签的默认事件，导航标签都通过 pushState 改变进行路由导航。
 
 link.js
 ```
