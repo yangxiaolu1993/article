@@ -1,17 +1,22 @@
 > 单页 Web 应用（single page web application，SPA），是当今网站开发技术的弄潮儿，仅靠加载单个 HTML 页面就在网站开发中占据了一席之地。很多传统网站正在或者已经转型为单页 Web 应用。单页 Web 应用网站也如雨后春笋般出现在大众眼前。前后端分离技术、MVVM 模式、前端路由、webpack 打包器也随之孕育而生。如果你是一名 Web 应用开发人员，却还没有发开或者甚至不了解单页 Web 应用，那就要加油了！  
 
-在《SPA 路由三部曲之初体验》中我们了解实现前端路由的基础知识。现在我们就利用这些基础知识，加上前端路由的不同技术栈的使用方式，基于 Vue 技术栈自己动手实现类似 vue-router 的前端路由 myRouter。
+在《SPA 路由三部曲之初体验》中我们了解到前端路由流行的模式有两种 hash 模式和 history 模式，两者分别利用浏览器自有特性实现单页面导航。
+
+* hash 模式：window.loaction 或 ```<a/>``` 标签改变锚点值，hashchange 监听埋点变化
+* history 模式：history.pushState()、history.repalceState() 定义目标路由，popstate 监听浏览器操作导致的 URL 变化
+
+现在我们就利用这些基础知识，加上前端路由在不同技术栈的使用方式，动手实现属于自己的前端路由 myRouter。
 
 ## 原生 JS 实现路由
 
-在实现 myRouter 之前，先用原生 JS 实现一下。
+在实现 myRouter 之前，先用原生 JS 小试牛刀。
 
 ### 原生 JS 实现 hash 路由
 
-使用原生 JS 实现 hash 路由，我们需要先明确，触发路由跳转的方式：
+在使用原生 JS 实现 hash 路由，我们需要先明确，触发路由导航的方式：
 
-* 使用 &lt;a&gt; 标签，触发锚点改变，监听 window.onhashchange() 进行路由跳转
-* JS 动态改变 hash 值，window.location.hash 赋值，进行路由跳转
+* 使用 &lt;a&gt; 标签，触发锚点改变，监听 window.onhashchange() 进行路由匹配
+* JS 动态改变 hash 值，window.location.hash 赋值，进行路由匹配
 
 那我们就一步一来，先来完成 HTML 的设计：
 
@@ -205,7 +210,7 @@ index.html
 
 ### 基于 Vue 实现路由
 
-Vue Router 与 React Router 可以说是现在最流行的单页面路由管理器了。虽然二者的使用方式有些差别，但是设计理念是一样的，只要掌握了其中一个，另一个也就不难理解了。这里我们以 Vue Router 为例，来聊聊如何实现 Vue Router。首先通过 vue-cli 搭建简单的环境，搭建过程在这里就不赘述了，调整之后的目录如下：
+vue-router 与 react-router 是现在流行的单页面路由管理器。虽然二者的使用方式有些差别，但是基本原理是大同小异的，只要掌握了其中一个，另一个也就不难理解了。我们参照 vue-router 的使用方式与功能，实现基于 Vue 技术栈的 myRouter。首先通过 vue-cli 搭建简单的 Vue 开发环境，搭建过程在这里就不赘述了，调整之后的目录如下：
 
 ```
 ├── config                   
@@ -234,7 +239,7 @@ Vue Router 与 React Router 可以说是现在最流行的单页面路由管理�
 
 #### Vue Router 的本质
 
-在实现 Vue Router 之前，我们先来观察一下 Vue 技术栈中是如何引入基础的 Vue Router 的。
+在实现 myRouter 之前，我们先来观察一下 Vue 技术栈中是如何引入 Vue Router 的。
 
 1. 通过 NPM 安装 vue-router 依赖包，```import VueRouter from 'vue-router'```引入
 2. 定义路由变量 routes，每个路由映射一个组件
@@ -324,7 +329,7 @@ Vue 官网说明：如果插件是一个对象，必须提供 install 方法。�
 
 项目中使用了 VueRouter 插件后，在每个 vue 实例中都会包含两个对象 $router 和 $route。
 
-* $route 是一个跳转的路由对象，每一个路由都是一个 route 对象，是局部对象。
+* $route 是当前路由对象，每一个路由都是一个 route 对象，是局部对象。
 * $router 是 VueRouter 的实例化对象，是全局对象，包含了所有 route 对象。
 
 **$myRouter**
@@ -374,7 +379,6 @@ MyRouter.install = function(Vue,options){
     Vue.mixin({
         beforeCreate(){
             ......
-
             // 为当前实例添加 $route 属性
             Object.defineProperty(this,'$myRoute',{
                 get(){
@@ -529,7 +533,7 @@ MyRouter.install = function(Vue,options){
     Vue.component(MyRouterView.name, MyRouterView)
 }
 ```
-接下来，在 App.vue 中添加上 <my-router-view/> 组件，来看看能不能得到想要的
+接下来，在 App.vue 中添加上 ```<my-router-view/>``` 组件，来看看能不能得到想要的
 
 App.vue
 ```
@@ -846,7 +850,7 @@ export default class HistoryRouter {
     }
 }
 ```
-由于 history.pushState 与 history.replaceState 对浏览器历史状态进行修改并不会触发 popstate，只有浏览器的后退、前进键才会触发 popstate 事件。所以在通过 history.pushState、history.replaceState 对历史记录进行修改、监听 popstate 时，都要根据当前 URL 进行导航 UI 渲染。除了进行 UI 渲染，还有非常重要的一点，对 router.current 的更新，只要将其更新，<my-router-view/> 组件才会更新。    
+由于 history.pushState 与 history.replaceState 对浏览器历史状态进行修改并不会触发 popstate，只有浏览器的后退、前进键才会触发 popstate 事件。所以在通过 history.pushState、history.replaceState 对历史记录进行修改、监听 popstate 时，都要根据当前 URL 进行导航 UI 渲染。除了进行 UI 渲染，还有非常重要的一点，对 router.current 的更新，只要将其更新，```<my-router-view/>```组件才会更新。    
 
 history.js
 ```
@@ -874,9 +878,9 @@ export default class HistoryRouter {
     }
 }
 ```
-细心的同学可能发现了问题，在原生 JS JSHistoryRouter 类中，将 &lt;a&gt; 标签的点击事件进行了改造，阻止了默认事件，使用 pushState 实现路由导航。HistoryRouter 类中为什么没有添加这个逻辑呢？不知道还记不记得 <my-router-link/> 的实现，按照现在 <my-router-link/> 的设计思路，最终渲染出来的不止是 &lt;a&gt; 标签，还可以是用户定义的 &lt;p&gt、&lt;li&gt 等等。但只有 &lt;a&gt; 标签才能修改 URL ，其他标签都做不到，没办法进行路由导航。换个思路，就算在 HistoryRouter 类中阻止了 &lt;a&gt; 标签的默认事件，也无法判断当前的 &lt;a&gt; 标签是用于路由导航呢，还是用户自己添加的呢？
+细心的同学可能发现了问题，在原生 JS JSHistoryRouter 类中，将 &lt;a&gt; 标签的点击事件进行了改造，阻止了默认事件，使用 pushState 实现路由导航。HistoryRouter 类中为什么没有添加这个逻辑呢？不知道还记不记得 ```<my-router-link/>``` 的实现，按照现在 ```<my-router-link/>``` 的设计思路，最终渲染出来的不止是 &lt;a&gt; 标签，还可以是用户定义的 &lt;p&gt、&lt;li&gt 等等。但只有 &lt;a&gt; 标签才能修改 URL ，其他标签都做不到，没办法进行路由导航。换个思路，就算在 HistoryRouter 类中阻止了 &lt;a&gt; 标签的默认事件，也无法判断当前的 &lt;a&gt; 标签是用于路由导航呢，还是用户自己添加的呢？
 
-综上所述，我们需要对 <my-router-link/> 组件的 render 函数进行升级改造，阻止 &lt;a&gt; 标签的默认事件，导航标签都通过 pushState 改变进行路由导航。
+综上所述，我们需要对 ```<my-router-link/>``` 组件的 render 函数进行升级改造，阻止 &lt;a&gt; 标签的默认事件，导航标签都通过 pushState 改变进行路由导航。
 
 link.js
 ```
@@ -912,11 +916,15 @@ function guardEvent(e){
     }
 }
 ```
-好了，<my-router-link/> 也改造完了，咱们来证明一下，代码的正确性吧！ 
+好了，```<my-router-link/>``` 也改造完了，咱们来证明一下，代码的正确性吧！ 
 
 ![](https://storage.360buyimg.com/imgtools/ff7a04d9d5-8f292dd0-e379-11ea-98e1-c5d2b444bf4a.gif)  
 
-完美实现，有点小小的佩服自己！与 vue-router 相比，还有很多的功能没有实现，比如 <keep-alive/>、路由导航守卫、过渡动画等等，myRouter 插件只是实现了简单的路由导航和页面渲染。往往一件事情最难的是第一步，MyRouter 已经开了一个不错的头，实现之后的功能也不是问题。
+完美实现，有点小小的佩服自己！与 vue-router 相比，还有很多的功能没有实现，比如 ```<keep-alive/>```、路由导航守卫、过渡动画等等，myRouter 插件只是实现了简单的路由导航和页面渲染。往往一件事情最难的是第一步，MyRouter 已经开了一个不错的头，实现之后的功能也不是问题。
+
+## 总结
+
+在 myRouter 插件是在没有看 vue-router 源码的情况下完成的，与源码的思路会有些许的差异。小伙伴们应该发现了，myRouter 实现过程中，不停的修改之前的代码，```<router-link>```的实现就修改了不下4遍。过程虽然痛苦，但是收获却满满，成就感爆棚。由衷佩服在 vue-router 的开发者，不知道他们是进行多少遍的修改，才能做到如今的地步！
 
 欢迎大家期待之后《SPA 路由三部曲之进阶篇》，在这篇文章中，小编将带领大家进入 vue-router 的源码世界。相信在了解了 vue-router 的实现思路后，大家就都可以实现自己的前端路由。
 
