@@ -1,5 +1,3 @@
-> 单页 Web 应用（single page web application，SPA），是当今网站开发技术的弄潮儿，仅靠加载单个 HTML 页面就在网站开发中占据了一席之地。很多传统网站正在或者已经转型为单页 Web 应用。单页 Web 应用网站也如雨后春笋般出现在大众眼前。前后端分离技术、MVVM 模式、前端路由、webpack 打包器也随之孕育而生。如果你是一名 Web 应用开发人员，却还没有发开或者甚至不了解单页 Web 应用，那就要加油了！  
-
 在《SPA 路由三部曲之初体验》中我们了解到前端路由流行的模式有两种 hash 模式和 history 模式，两者分别利用浏览器自有特性实现单页面导航。
 
 * hash 模式：window.loaction 或 a 标签改变锚点值，hashchange 监听埋点变化
@@ -21,7 +19,6 @@
 那我们就一步一来，先来完成 HTML 的设计：
 
 index.html
-
 ```
 <body>
   <div>
@@ -167,14 +164,13 @@ JSHistoryRouter 类自身定义了 routerView 属性，接收渲染路由 UI 的
 
 * init() 中主要做了2件事：
     1. window.onpopstate() 事件，用于 history.go()、history.back()、history.forword() 的监听。  
-    2. 点击 &lt;a&gt 标签，浏览器 URL 更新为 href 的 URL，e.preventDefault() 阻止默认事件。将 href url 通过 pushState() 更新浏览器 URL，重新渲染 routerView。
+    2. 点击 a 标签，浏览器 URL 更新为 href 的 URL，e.preventDefault() 阻止默认事件。将 href url 通过 pushState() 更新浏览器 URL，重新渲染 routerView。
 * push() 函数，通过 history.pushState() 新增浏览器 URL，重新渲染 routerView。
 * replace()函数，通过 history.replaceState() 替换浏览器 URL，重新渲染 routerView。
 
 ok，现在只要实例化 JSHistoryRouter 类，调用方法就可以了！
 
 index.html
-
 ```
 <body>
   <div>
@@ -204,6 +200,7 @@ index.html
 </body>
 ```
 来来来，展示效果啦！
+
 ![](https://storage.360buyimg.com/imgtools/aaa3272210-7e7718e0-e102-11ea-8f90-d15419c43e51.gif)
 
 > 细心的同学应该已经发现了，在 HashRouter 类的 init() 方法中，处理了页面首次渲染的情况，但在 HistoryRouter 类中却没有。Hash 模式下，改变的是 URL 的 hash 值，浏览器请求是不携带 hash 值的，所以 http:localhost:8080/#/home 与 http:localhost:8080/#/cart，浏览器请求都是 http:localhost:8080。History 模式下，改变的则是 URL 除锚外的其他部分，所以 http:localhost:8080 与 http:localhost:8080/home 浏览器请求是不同的。这就也就可以解释在 vue-router 下，Hash 模式后端只需要将域名指向 index.html 即可，History 模式后端需要重定向，将域名下匹配不到的静态资源，返回到同一个 index.html 页面。
@@ -649,8 +646,7 @@ install.js
 MyRouter.install = function(Vue,options){
     if (this.$options && this.$options.myRouter){ 
         this._myRouter = this.$options.myRouter
-        // 新增 myRouter 初始化
-        this.$options.myRouter.init()
+        this.$options.myRouter.init()   // 新增 myRouter 初始化
     }else { 
         this._myRouter= this.$parent && this.$parent._myRouter
     }
@@ -690,15 +686,13 @@ export default class HashRouter {
         this.router = router // 存储 MyRouter 对象
     }
     init(){
-        <!-- 页面首次加载时，判断当前路由 -->
-        this.createRoute()
-        <!-- 监听 hashchange -->
-        window.addEventListener('hashchange', this.handleHashChange.bind(this))
+        this.createRoute()   // 页面首次加载时，判断当前路由 
+        window.addEventListener('hashchange', this.handleHashChange.bind(this))  // 监听 hashchange
     }
     handleHashChange(){
         this.createRoute()
     }
-    <!-- 更新当前路由 current  -->
+    // 更新当前路由 current
     createRoute(){
         let path = location.hash.slice(1)  
         let route = this.router.routesMap.pathMap[path] 
@@ -747,13 +741,10 @@ export default {
 install.js
 ```
 MyRouter.install = function(Vue,options){
-
     Vue.mixin({
         beforeCreate(){
             ......
-            Object.defineProperty(this,'$myRoute',{
-                ....
-            })
+            Object.defineProperty(this,'$myRoute',{ .... })
             // 新增代码 利用 Vue defineReactive 监听当前路由的变化
             Vue.util.defineReactive(this._myRouter,'current')
         }
@@ -829,19 +820,16 @@ export default class HistoryRouter {
     init(){
         // 监听 popstate
         window.addEventListener('popstate', ()=>{
-            <!-- 导航 UI 渲染 -->
-            this.createRoute(this.getLocation())
+            this.createRoute(this.getLocation())  // 导航 UI 渲染
         })
     }
     push(params){
         history.pushState(null, '', params.path)
-        <!-- 导航 UI 渲染 -->
-        this.createRoute(params)
+        this.createRoute(params)  // 导航 UI 渲染
     }
     replace(params){
         history.replaceState(null, '', params.path)
-        <!-- 导航 UI 渲染 -->
-        this.createRoute(params)
+        this.createRoute(params)  // 导航 UI 渲染
     }
     go(n){window.history.go(n)}
     getLocation () {
@@ -888,7 +876,7 @@ export default {
     ......
     render: (createElement, {props,parent,children}) => {    
         let toRoute = parent.$myRouter.mode == 'hash'?`#`:``
-        <!-- 路由导航匹配 -->
+        // 路由导航匹配 
         if( props.to.name ){
             let current = props.to.name
             toRoute += parent._myRouter.routesMap.nameMap[current].path
@@ -897,15 +885,11 @@ export default {
         }
         let on = {'click':guardEvent} 
         on[props.event] = e=>{
-            // 阻止导航标签的默认事件
-            guardEvent(e)
-            // props.to 的值传到 router.push()
-            parent.$myRouter.push(props.to)
+            guardEvent(e)  // 阻止导航标签的默认事件
+            parent.$myRouter.push(props.to)   // props.to 的值传到 router.push()
         }
         return createElement(props.tag,{
-            attrs: {
-                href: toRoute
-            },
+            attrs: { href: toRoute },
             on,
         },children)
     }
