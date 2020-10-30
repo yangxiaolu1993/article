@@ -2,7 +2,7 @@
 
  > 在《SPA 路由三部曲之初体验》、《SPA 路由三部曲之实战篇》两篇文章中，分别介绍了前端路由的基础知识、通过 MyRouter 插件实现了前端路由基本功能。相信大家已经迫不及待的想要进入 vue-router 的源码世界了。小编马上实现大家的愿望，话不多说，步入正题。
 
- 告诉大家一个小秘密，之前 MyRouter 插件的实现是在没有看源码代码的情况下，仅靠自己的对 vue-router 的使用、资料实现的，与 VueRouter 的源码的实现思路是有一些出入的，主要是 hash 模式的实现方式，网上大部分对于 hash 路由的实现原理都是通过 window.location.hash 改变 hash 值，changehash 监听 hash 值的变化，实现路由导航。但在 VueRouter 中却不是这样的，先卖个关子，继续往下看！
+ 与 VueRouter 的源码的实现思路是有一些出入的，主要是 hash 模式的实现方式，网上大部分对于 hash 路由的实现原理都是通过 window.location.hash 改变 hash 值，changehash 监听 hash 值的变化，实现路由导航。但在 VueRouter 中却不是这样的，先卖个关子，继续往下看！
 
 ## 整体结构
 
@@ -25,7 +25,7 @@
 │   ├── install.js                 // vue 插件 install 函数
 │   └── util                       // 工具类
 ```
-VueRouter 的目录结构是很清晰、简单的。VueRouter 的入口文件是 src/index.js。
+VueRouter 的目录结构是很清晰、简单的，入口文件是 src/index.js。
 
 ## VueRouter 类
 
