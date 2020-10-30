@@ -556,7 +556,7 @@ class MyRouter {
 }
 export default MyRouter
 ```
-> MyRouter 类初始化的时候，我们实例化的 Router 类放到了 history 中，在使用 MyRouter 类的 push()、replace()、go() 方法，就是在调用 HashRouter 类或 HistoryRouter 类的方法。所以在 HashRouter 类与 HistoryRouter 类中同样需要包含这 3 个方法。
+> MyRouter 类初始化的时候，我们实例化的 Router 类放到了 history 中，在使用 MyRouter 类的init()、 push()、replace()、go() 方法，就是在调用 HashRouter 类或 HistoryRouter 类的方法。所以在 HashRouter 类与 HistoryRouter 类中同样需要包含这 4 个方法。
 
 Utils.createMap(routes) 
 
@@ -590,7 +590,7 @@ createMap(routes){
 
 ### HashRouter 类
 
-顾名思义，HashRouter 类用来实现 Hash 模式下的路由的跳转。通过定义 MyRouter 类，我们知道 HashRouter 类需要定义3个函数。同时 HashRouter 类需要操作 MyRouter 类中的属性，需要一个参数接收。HashRouter 类的基本框架就出来了。
+顾名思义，HashRouter 类用来实现 Hash 模式下的路由的跳转。通过定义 MyRouter 类，可以明确 HashRouter 类需要定义 4 个函数。同时 HashRouter 类为 MyRouter 类中的 current 属性赋值，需要接收 MyRouter 类的参数。那么，HashRouter 类的基本框架就出来了。
 
 hash.js
 ```
@@ -604,13 +604,11 @@ export default class HashRouter {
     go(n){}
 }
 ```
-HashRouter 类最重要的作用就是监听 URL Hash 值的变化，来实现路由跳转。还记得之前原生 JS 实现的 Hash 路由吗，原理是一模一样的，代码直接拿来用都可以。
+实现 hash 模式路由跳转的关键就是监听 URL Hash 值的变化。还记得之前原生 JS 实现的 Hash 路由吗，原理是一模一样的，代码直接拿来用都可以。
 
 ```
 export default class HashRouter {
-    constructor(router){
-        this.router = router // 存储 MyRouter 对象
-    }
+    ......
     init(){
         this.createRoute()   // 页面首次加载时，判断当前路由 
         window.addEventListener('hashchange', this.handleHashChange.bind(this))  // 监听 hashchange
@@ -634,31 +632,16 @@ export default class HashRouter {
             component: route.component
         }  
     }
-    push(params){}
-    replace(params){}
-    go(n){}
+    ......
 }
 
 ```
 
-HashRouter 类与之前原生 JS 实现的 JSHashRouter 类实现原理是一样的，稍有不同的是对 UI 渲染的方式。HashRouter 类需要将路由匹配到的组件用 ```<my-router-view/>``` 渲染出来。
+HashRouter 类与 JSHashRouter 类实现思路是一样的，稍有不同的是对 UI 渲染的方式。HashRouter 类是通过 ```<my-router-view/>``` 渲染组件的。
 
-不知道大家有没有注意到，HashRouter 类监听到的路由变化与```<my-router-view/>```组件之间没有任何联系，```<my-router-view/>```组件是直接通过对 location 的操作渲染 UI 的。如何将这两者之间联系起来呢？$myRoute 可以完成这个任务。
+HashRouter 类中的 createRoute() 获取 URL 的 hash 值，即 path 值，通过 MyRouter 类中的 routesMap.pathMap 对象，获取到当前路由匹配的路由配置选项，将路由配置选项合并到 myRouter.current 对象中，myRouter.current 通过 $myRoute 挂载到了每个实例中。也就是说，$myRoute.component 就是我们匹配到的路由组件，```<my-router-view/>`` 也是通过它确定要渲染的组件。
 
-HashRouter 类中的 createRoute() 获取 URL 的 hash 值，即 path 值，通过 MyRouter 类中的 routesMap.pathMap 对象，获取到当前路由匹配的路由配置选项，将路由配置选项合并到 myRouter.current 对象中，myRouter.current 通过 $myRoute 挂载到了每个实例中。也就是说，$myRoute.component 就是我们匹配到的路由组件。
-
-view.js
-```
-export default {
-    name: 'MyRouterView',
-    functional: true,
-    render: (createElement, {props, children, parent, data}) => {
-        let temp = parent.$myRoute?parent.$myRoute.component:''
-        return createElement(temp)
-    }
-};
-```
-```<my-router-view/>```更新完以后是不是清晰多了。代码实现到这里，应该可以实现基本的跳转了，来看一下效果，验证一下！
+代码实现到这里，应该可以实现基本的跳转了，来看一下效果，验证一下！
 
 ![](https://storage.360buyimg.com/imgtools/bfd27755f6-5c0bf770-e284-11ea-9f1f-7bf9739df39d.gif)
 
@@ -677,7 +660,7 @@ MyRouter.install = function(Vue,options){
     })
 }
 ```
-现在在来看看，MyRouterView 组件的内容有没有更新。  
+现在来看看，MyRouterView 组件的内容有没有更新。  
 ![](https://storage.360buyimg.com/imgtools/680086c4fc-f2861fc0-e287-11ea-b779-5171ebe3afba.gif)
 
 太不容易了，终于得到我们想要的效果了。HashRouter 类的 push()、replace()、go() 方法，直接 copy JSHashRouter 类的代码就实现了。
@@ -712,7 +695,7 @@ export default class HashRouter {
 ```
 参照 vue-router，动态导航方法可以是字符串，也可以是描述地址的对象，getUrl 函数处理 params 的各种情况。
 
-HashRouter 类基本功能终于实现完了，其实知道了 HashRouter 类的思路，HistoryRouter 类实现起来就不难了。
+HashRouter 类基本功能实现完了，是不是挺简单的，对 HistoryRouter 类的实现充满了信心，那就趁热打铁，实现 HistoryRouter 类走起！！
 
 ### HistoryRouter 类
 
@@ -732,10 +715,9 @@ export default class HistoryRouter {
     push(params){}
     replace(params){}
     go(n){}
-
 }
 ```
-通过上面的学习我们知道，history 模式是通过 history.pushState()、history.replaceState()，配合 window.onpopstate() 实现的。同样的 HistoryRouter 类的实现依然可以将原生 JS 实现的 JSHistoryRouter 类的代码直接拿过来。
+history 路由模式导航是通过 history.pushState()、history.replaceState() 配合 window.onpopstate() 实现的。与 HashRouter 类一样，HistoryRouter 类的实现依然可以将原生 JS 实现的 JSHistoryRouter 类的代码直接拿过来。
 
 history.js
 ```
@@ -792,51 +774,19 @@ export default class HistoryRouter {
     }
 }
 ```
-细心的同学可能发现了问题，在原生 JS JSHistoryRouter 类中，将 a 标签的点击事件进行了改造，阻止了默认事件，使用 pushState 实现路由导航。HistoryRouter 类中为什么没有添加这个逻辑呢？不知道还记不记得 ```<my-router-link/>``` 的实现，按照现在 ```<my-router-link/>``` 的设计思路，最终渲染出来的不止是 a 标签，还可以是用户定义的 &lt;p&gt;、&lt;li&gt; 等等。但只有 a 标签才能修改 URL ，其他标签都做不到，没办法进行路由导航。换个思路，就算在 HistoryRouter 类中阻止了 a 标签的默认事件，也无法判断当前的 a 标签是用于路由导航呢，还是用户自己添加的呢？
+细心的同学可能发现了问题，在原生 JS JSHistoryRouter 类中，将 a 标签的点击事件进行了改造，阻止了默认事件，使用 pushState 实现路由导航。HistoryRouter 类中为什么没有添加这个逻辑呢？还记得 ```<my-router-link/>``` 的实现吗，其阻止了 a 标签的默认事件，统一使用 MyRouter 类的 push 方法，进行路由导航。
 
-综上所述，我们需要对 ```<my-router-link/>``` 组件的 render 函数进行升级改造，阻止 a 标签的默认事件，导航标签都通过 pushState 改变进行路由导航。
-
-link.js
-```
-export default {
-    ......
-    render: (createElement, {props,parent,children}) => {    
-        let toRoute = parent.$myRouter.mode == 'hash'?`#`:``
-        // 路由导航匹配 
-        if( props.to.name ){
-            let current = props.to.name
-            toRoute += parent._myRouter.routesMap.nameMap[current].path
-        } else {
-            toRoute += Utils.getProperty(props.to) == 'String'?props.to:props.to.path
-        }
-        let on = {'click':guardEvent} 
-        on[props.event] = e=>{
-            guardEvent(e)  // 阻止导航标签的默认事件
-            parent.$myRouter.push(props.to)   // props.to 的值传到 router.push()
-        }
-        return createElement(props.tag,{
-            attrs: { href: toRoute },
-            on,
-        },children)
-    }
-};
-function guardEvent(e){
-    if (e.preventDefault) {
-        e.preventDefault()
-    }
-}
-```
-好了，```<my-router-link/>``` 也改造完了，咱们来证明一下，代码的正确性吧！ 
+HistoryRouter 类的基本功能也实现完了，已经迫不及待想要验证代码的正确性了！ 
 
 ![](https://storage.360buyimg.com/imgtools/ff7a04d9d5-8f292dd0-e379-11ea-98e1-c5d2b444bf4a.gif)  
 
-完美实现，有点小小的佩服自己！与 vue-router 相比，还有很多的功能没有实现，比如嵌套路由、路由导航守卫、过渡动画等等，myRouter 插件只是实现了简单的路由导航和页面渲染。往往一件事情最难的是第一步，MyRouter 已经开了一个不错的头，实现之后的功能也不是问题。感兴趣的同学可以继续开发下去！
+完美实现，有点小小的佩服自己！居然出现了可以参与编写 vue-router 的错觉。与 vue-router 相比，还有很多的功能没有实现，比如嵌套路由、路由导航守卫、过渡动画等等，myRouter 插件只是实现了简单的路由导航和页面渲染。往往一件事情最难的是第一步，MyRouter 已经开了一个不错的头，相信完善之后的功能也不是问题。感兴趣的小伙伴可以跟小编一起继续开发下去！
 
 ## 总结
 
-myRouter 插件实现思路与 vue-router 源码的思路会有些许的差异，但我相信，myRouter 的实现思路一定能帮助小伙伴更加快速的掌握 vue-router 的源码。小伙伴们应该发现了，myRouter 实现过程中，不停的修改之前的代码，```<router-link>```的实现就修改了不下4遍。过程虽然痛苦，但是收获却满满，成就感爆棚。由衷佩服在 vue-router 的开发者，不知道他们是进行多少遍的修改，才能做到如今的地步！
+vue-router 实现思路不难，源码逻辑却是相当的复杂，MyRouter 相比 vue-router 虽然简化了很多，但整体思路是一致的。小编相信，myRouter 的实现一定能帮助小伙伴更加快速的掌握 vue-router 的源码。小伙伴们在编写代码时，有没有跟小编一样的经历，需要不停的修改、完善之前的代码，哪怕当时想的很全面，也依然会亲手把代码删除，单单是 ```<router-link/>``` 组件的实现，小编就修改了不下 4 遍。过程虽然痛苦，但结果却是收获却满满，成就感爆棚。由衷佩服在 vue-router 的开发者，不知道他们是进行多少遍的修改，才能做到如今的地步！
 
-欢迎大家期待之后《SPA 路由三部曲之进阶篇》，在这篇文章中，小编将带领大家进入 vue-router 的源码世界。相信在了解了 vue-router 的实现思路后，大家就都可以实现自己的前端路由。
+欢迎大家期待之后《SPA 路由三部曲之进阶篇》，在这篇文章中，小编将带领大家进入 vue-router 的源码世界。相信在了解了 vue-router 的实现思路后，大家就都可以真正实现自己的前端路由了。
 
 
 
