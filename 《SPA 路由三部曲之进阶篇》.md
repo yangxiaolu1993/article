@@ -1,31 +1,90 @@
 
 
- > 在《SPA 路由三部曲之初体验》、《SPA 路由三部曲之实战篇》两篇文章中，分别介绍了前端路由的基础知识、通过 MyRouter 插件实现了前端路由基本功能。相信大家已经迫不及待的想要进入 vue-router 的源码世界了。小编马上实现大家的愿望，话不多说，步入正题。
+ >单页 Web 应用（single page web application，SPA），是当今网站开发技术的弄潮儿，仅靠加载单个 HTML 页面就在网站开发中占据了一席之地。很多传统网站正在或者已经转型为单页 Web 引用。单页 Web 应用网站也如雨后春笋般出现在大众眼前。前后端分离技术、MVVM 模式、前端路由、webpack 打包器也随之孕育而生。如果你是一名 Web 应用开发人员，却还没有发开或者甚至不了解单页 Web 应用，那就要加油了！
 
- 与 VueRouter 的源码的实现思路是有一些出入的，主要是 hash 模式的实现方式，网上大部分对于 hash 路由的实现原理都是通过 window.location.hash 改变 hash 值，changehash 监听 hash 值的变化，实现路由导航。但在 VueRouter 中却不是这样的，先卖个关子，继续往下看！
+ Vue-Router 是 Vue 应用的前端路由插件，其使用方法很简单，就算是刚上手的小白，给他随便说两句就能轻松使用。兵法讲究的是：知己知彼，才能百战不殆，代码也是一样的，了解了 Vue-Router 的源码，在难的问题也就迎刃而解了。咱们闲话休提，书归正传，小编将从 XXX 几方面讲解 Vue-Router 源码。
 
-## 整体结构
+## 整体把握
 
-在项目开发之前，项目的目录结构都是确定好的，每一个文件都有自己明确的功能。源码阅读也是一样，在这之前，要尽可能的先掌握整体结构。
+Vue-Router 的源码代码量不算很多，但是内容却也不少，函数一层一层的嵌套。为了能更好的帮助大家整体把握 Vue-Router 源码，小编先从整体设计思路、项目结构、重要函数三个方面介绍 vue-router。
+
+### 设计思路
+
+1、 使用的 Hash 模式路由其实是 History 模式路由
+
+阅读源码之前，小编对 vue-router 的实现存在一个错误的认知：Hash 模式下的路由是通过使用 hashChange 事件监听 URL 的 Hash 值的改变实现的。其实不然，小编并不是否定这种想法，而且这种想法是存在不完善。Vue-Router 的设计大神对 Hash 模式路由与 History 模式路由做了兼容处理。在浏览器支持 history 新特性的前提下，就算 mode 值为 hash，vue-router 内部使用的依然是 history.pushState 与 stateChange 完成的路由导航。同样的，如果浏览器不支持 history 新特性，history 模式的路由也会优雅降级为 hash 模式。
+
+> 在 ./util/push-state.js 文件中，定义了 supportsPushState 函数，用于判断是否支持 history 的新特性。
+
+2、VueRouter 实例化
+
+通过 new VueRouter 创建 vueRouter 实例时，会通过深度遍历把传入的路由配置项 routes 进行映射解析，保存到 pathMap、nameMap 中，每个 Map 对应一个路由记录，即 RouteRecord。不管在哪种路由模式下，触发路由导航时，都会调用 transitionTo 方法，匹配到目标路由对应的 RouteRecord，通过 confirmTransition 方法完成导航守卫、与 history.current 重新赋值，触发 Vue.util.defineReactive 监听事件, 实现路由切换。
+
+> 在 VueRouter.install 方法中，通过 ```Vue.util.defineReactive(this, '_route', this._router.history.current)``` 把 _route 变成响应式，即 this._router.history.current，_route 通过 Object.defineProperty 挂载到了 vue 实例的 $route 上，也就是说，在咱们经常使用的 this.$route 是响应式的。当 confirmTransition 方法改变 history.current 的值时，_route 就会重新赋值，触发 ```<router-view />``` 组件进行重新渲染。
+
+3、```<router-link />``` 组件
+
+<router-link /> 组件渲染时，会利用 prop to 属性，遍历 Map 里的每个路由记录 RouteRecord 找到正确的渲染组件，通过 Vue Render 函数将 <router-link/> 渲染成 prop tag 设置的标签，默认是 a 标签。<router-link /> 进行路由导航时，默认情况下，阻止了 a 标签的默认点击事件，通过添加的 click 事件完成触发导航任务。通过 prop event 传入的其他事件，也会进行与 click 有相同作用的事件绑定。
+
+4、```<router-view />``` 组件
+
+在 VueRouter 实例化时，this.$route 变成了响应式数据，监听 history.current 值的变化。在 $route.matched 上保存了目标路由所有父链路路由对应的路由记录 RouteRecord，包括目标路由的 RouteRecord。获取当前 <router-view /> 相对于最顶层的根 Vue 实例所嵌套的深度的层次数，在 matched 数组中找到目标路由需要渲染的组件，完成 keep-alive 组件与非 keep-alive 组件渲染。
+
+### 项目结构
+
+团队协作最重要的一点就是：分工明确、各司其职，一个好的项目结构也是如此，需要每一个文件都有明确的功能。所以在源码阅读前，要尽可能的先掌握项目的整体结构，才不会造成越看越晕的困境。VueRouter 的项目结构是很清晰、简单的。
 
 ```
 ├── src
 │   ├── components
 │   │   ├── link.js                // <router-link/> 的实现
 │   │   └── view.js                // <router-view/> 的实现
-│   ├── create-matcher.js          // 根据传入的配置对象创建路由映射表
-│   ├── create-route-map.js        // 根据routes配置对象创建路由映射表 ，生成 pathList/nameMap/pathMap
+│   ├── create-matcher.js          // 根据 routes 配置对象生成 match()、addRoutes()
+│   ├── create-route-map.js        // 根据 routes 配置对象创建路由映射表 ，生成 pathList/nameMap/pathMap
 │   ├── history                    
 │   │   ├── abstract.js            // 非浏览器 history 类
-│   │   ├── base.js                // 基本的 history 类
-│   │   ├── errors.js              // 错误、警告
-│   │   ├── hash.js                // hash 模式的 hashhistory 类
-│   │   └── html5.js               // history 模式的 history 类
+│   │   ├── base.js                // HashHistory 类与 HTML5History 类的公共类，包括 transitionTo()、confirmTransition() 重要函数
+│   │   ├── hash.js                // hash 模式下 HashHistory 类
+│   │   └── html5.js               // history 模式的 HTML5History 类
 │   ├── index.js                   // 入口文件 vue-router 类
-│   ├── install.js                 // vue 插件 install 函数
-│   └── util                       // 工具类
+│   ├── install.js                 // vue 插件调用的 install 函数
+│   └── util                       // 工具类，包括 route.js、push-state.js、location.js
 ```
-VueRouter 的目录结构是很清晰、简单的，入口文件是 src/index.js。
+与其他单页面应用一样，Vue-Router 的入口文件是 src/index.js。
+
+### 重要函数
+
+在 VueRouter 类中有几个关键的函数，对掌握掌握主流程和原理有很大的帮助。
+
+1、路由记录 RouteRecord
+
+```
+const record: RouteRecord = {
+    path: normalizedPath,
+    regex: compileRouteRegex(normalizedPath, pathToRegexpOptions),
+    components: route.components || { default: route.component },
+    instances: {},
+    name,
+    parent, //嵌套路由
+    matchAs,
+    redirect: route.redirect,
+    beforeEnter: route.beforeEnter,
+    meta: route.meta || {},
+    props: route.props == null ? {} : route.components ? route.props : { default: route.props }
+}
+```
+ 路由记录是在 ./create-route-map.js 中的 addRouteRecord() 函数中定义的。
+
+* regex  
+ 通过 path-to-regexp 生成路由正则，为了匹配嵌套路由，比如：{ path: '/my/:userId'}
+
+* parent   
+嵌套路由中父路由的路由记录对象
+* matchAs  
+  嵌套路由子路由匹配标记
+* matched  
+ 是当前路由记录对应的所有嵌套路劲片段的路由记录，也就是所有父路由对象都在这个数组里面，包含了当前页面的路由信息
+
 
 ## VueRouter 类
 
@@ -179,6 +238,7 @@ RouteRecord 是一个对象，包含了一条路由的所有信息: 路径、路
 * regex：通过 path-to-regexp 生成路由正则，为了匹配嵌套路由，比如：{ path: '/my/:userId'}
 * parent：嵌套路由中父路由的路由记录对象
 * matchAs：嵌套路由子路由匹配标记
+* matched 是当前路由记录对应的所有嵌套路劲片段的路由记录，也就是所有父路由对象都在这个数组里面，包含了当前页面的路由信息
 
 createRouteMap 方法执行后，我们就可以得到由所有路由记录组成的 RouteRecord 树型结构。并得到 path、name 对应的路由映射。通过 path 和 name 能在 pathMap 和 nameMap 快速查到对应的 RouteRecord。
 
