@@ -77,14 +77,56 @@ const record: RouteRecord = {
 
 * regex  
  通过 path-to-regexp 生成路由正则，为了匹配嵌套路由，比如：{ path: '/my/:userId'}
-
+* components   
+保存路由中设置的组件。Router 构建选项 routes:RouteConfig 定义了两个属性用于设置组件：component 单个视图组件与 components 命名视图组件。日常开发中大多是使用 component 定义视图组件，components 命名视图组件与其最大的缺别就是路由下的组件是同级的，而不是嵌套的。在 vue-router 组件内部会将两者合并，单个视图组件赋值为 default。
 * parent   
-嵌套路由中父路由的路由记录对象
-* matchAs  
-  嵌套路由子路由匹配标记
-* matched  
- 是当前路由记录对应的所有嵌套路劲片段的路由记录，也就是所有父路由对象都在这个数组里面，包含了当前页面的路由信息
+记录当前路由对应的嵌套路由中上一层父路由的路由记录对象，根路由的 parent 为 null。
+```
+const routes = [{
+  path: '/',
+  component: Home,
+  children:[{
+    path: 'child',
+    component: Child,
+  }]
+}]
+```
+代码中所示的嵌套路由配置，在 ```/child``` 的路由记录中，parent 记录的就是 ```/```的路由记录。
 
+2、路由对象 route，即 $route
+
+```
+const route: Route = {
+    name: location.name || (record && record.name),
+    meta: (record && record.meta) || {},
+    path: location.path || '/',
+    hash: location.hash || '',
+    query,
+    params: location.params || {},
+    fullPath: getFullPath(location, stringifyQuery),
+    matched: record ? formatMatch(record) : []
+}
+```
+路由对象 route 与上面提到的路由记录 record 是有区别的，后者是在初始化 VueRouter 时，将每个路由按照标准整理成对象，前者是通过路由记录得到最终的 route 对象，前者依赖于后者。
+
+route 对象是在 ./util/route.js 的 createRoute() 函数中定义的，通过 VueRouter 类的 match() 函数调用。除了 matched，了解 VueRouter 的同学对其他属性应该都不陌生。
+
+formatMatch 函数通过深度循环遍历 record.parent，使 matched 属性记录了当前路由对应的所有嵌套路由片段的路由记录，也就是所有父路由对象都在这个数组里面，包含了当前路由的路由信息，其在路由导航守卫中其中关键的作用。路由切换时，通过对比目标路由 matched 与 当前路由 matched ，找到需要要被销毁的组件（deactivated）、要被激活的组件（activated）和需要更新的组件（updated），runQueue() 函数完成路由导航守卫。
+
+```
+const routes = [{
+  path: '/home',
+  component: Home,
+  children:[{
+    path: 'childOne',
+    component: ChildOne,
+  },{
+    path: 'childTwo',
+    component: ChildTwo,
+  }]
+}]
+```
+按照 Vue-Router 的设计思路，```/home/childOne``` 对应的 route.matched 为 ```[/home 路由记录，/childOne 路由记录]```，```/home/childTwo``` 对应的 route.matched 为 ```[/home 路由记录，/childTwo 路由记录]```。
 
 ## VueRouter 类
 
