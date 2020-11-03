@@ -52,7 +52,7 @@ Vue-Router 的源码代码量不算很多，但是内容却也不少，函数一
 ```
 与其他单页面应用一样，Vue-Router 的入口文件是 src/index.js。
 
-### 重要函数
+### 关键对象
 
 在 VueRouter 类中有几个关键的函数，对掌握掌握主流程和原理有很大的帮助。
 
@@ -109,9 +109,9 @@ const route: Route = {
 ```
 路由对象 route 与上面提到的路由记录 record 是有区别的，后者是在初始化 VueRouter 时，将每个路由按照标准整理成对象，前者是通过路由记录得到最终的 route 对象，前者依赖于后者。
 
-route 对象是在 ./util/route.js 的 createRoute() 函数中定义的，通过 VueRouter 类的 match() 函数调用。除了 matched，了解 VueRouter 的同学对其他属性应该都不陌生。
+route 对象是在 ./util/route.js 的 createRoute() 函数中定义的，通过 VueRouter 类的 match() 函数调用。除了 matched 属性，了解 VueRouter 的同学对其他属性应该都不陌生。
 
-formatMatch 函数通过深度循环遍历 record.parent，使 matched 属性记录了当前路由对应的所有嵌套路由片段的路由记录，也就是所有父路由对象都在这个数组里面，包含了当前路由的路由信息，其在路由导航守卫中其中关键的作用。路由切换时，通过对比目标路由 matched 与 当前路由 matched ，找到需要要被销毁的组件（deactivated）、要被激活的组件（activated）和需要更新的组件（updated），runQueue() 函数完成路由导航守卫。
+formatMatch 函数通过深度循环遍历 record.parent，使 matched 属性记录了当前路由对应的所有嵌套路由片段的路由记录，也就是所有父路由对象都在这个数组里面，包含当前路由的路由信息，matched 属性在路由导航守卫中起关键的作用。路由切换时，通过对比目标路由 matched 与当前路由 matched，找到需要要被销毁的组件（deactivated）、要被激活的组件（activated）和需要更新的组件（updated），通过 runQueue() 函数完成路由导航守卫。
 
 ```
 const routes = [{
@@ -130,27 +130,22 @@ const routes = [{
 
 ## VueRouter 类
 
-我们先从 VueRouter 的入口 index.js 开始解析。
+通过一张图，先整体把握 VueRouter 类：
 
 ![](https://img11.360buyimg.com/imagetools/jfs/t1/136305/5/7923/513653/5f433989Ec08e2e21/58f33ddbdb66e578.png)
 
-VueRouter 的本质就是一个类，其中定义了很多的属性和方法。很多的方法与 MyRouter 是一样，大家可以参考 MyRouter 的创建过程，就不做详细介绍了，这里主要介绍 VueRouter 中核心的函数。
+VueRouter 的本质就是一个类，其中定义了很多的属性和方法。在这里小编通过讲解其中关键的函数，帮大家整理 VueRouter 的实现思路。首先先来解析一下入口文件 index.js。
 
-### this.matcher
+### router.matcher 对象与 router.match 函数
 
-我们可以观察到 route 对象通过 this.match() 获取，match 又是通过 this.matcher.match()，而 this.matcher 是通过 createMatcher 函数处理，createMatcher 函数做了什么事情呢？
+VueRouter 对象初始化时，this.matcher 对象与 match 函数，仔细观察就会发现，this.matcher 对象是通过 createMatcher 函数定义的，而 match 函数最终调用的就是 this.matcher.match() 函数。createMatcher 函数做了什么事情呢？
 
 **createMatcher()**
 createMatcher 函数相关的实现都在 src/create-matcher.js中。
 ```
-/**
- * 创建 createMatcher 
- * @param {*} routes 路由配置选项
- * @param {*} router 路由实例
- */
 export function createMatcher (
-  routes: Array<RouteConfig>,
-  router: VueRouter
+  routes: Array<RouteConfig>, //路由配置选项
+  router: VueRouter // router 路由实例
 ): Matcher {
   const { pathList, pathMap, nameMap } = createRouteMap(routes)
   function addRoutes (routes) {
@@ -168,7 +163,7 @@ export function createMatcher (
   }
 }
 ```
-从上面简化后的代码可以看出来，createMatcher 接收2个参数，routes 是 new VueRouter 实例化时，用户定义的路由配置，router 是 new VueRouter 返回的实例。routes 是一个定义了路由配置的数组，通过 createRouteMap 函数处理为 pathList, pathMap, nameMap。createMatcher 最终返回了一个对象 {match, addRoutes} 。也就是说 matcher 是一个对象，它对外暴露了 match 和 addRoutes 方法。
+从上面简化后的代码可以看出来，createMatcher 接收2个参数，routes 是 new VueRouter 实例化时，用户定义的路由配置，router 是 new VueRouter 返回的实例。routes 是一个定义了路由配置的数组，通过 createRouteMap 函数处理为 pathList, pathMap, nameMap。createMatcher 最终返回了一个对象 { match, addRoutes } 。也就是说 router.matcher 是一个对象，它对外暴露了 match 方法和 addRoutes 方法。
 
 match 和 addRoutes 方法的定义都用到了 pathList, pathMap, nameMap ，那我们就先来看一下，createRouteMap 是如何定义这3个对象的。
 
