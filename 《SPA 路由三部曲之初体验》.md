@@ -1,21 +1,26 @@
-为了配合单页 Web 应用快速发展的节奏，近几年，各类前端组件化技术栈层出不穷。通过不断的版本迭代 React、Vue 脱颖而出，成为当下很受欢迎的两大技术栈。    
+> 单页面 Web 应用（single page web application，SPA），是当今网站开发技术的弄潮儿，仅靠加载单个 HTML 页面就在网站开发中占据了一席之地。很多传统网站正在或者已经转型为单页面 Web 应用。单页面 Web 应用网站也如雨后春笋般出现在大众眼前。前后端分离技术、MVVM 模式、前端路由、webpack 打包器也随之孕育而生。如果你是一名 Web 应用开发人员，却还没有开发或者甚至不了解单页面 Web 应用，那就要加油了！
+
+为了配合单页面 Web 应用快速发展的节奏，近几年，各类前端组件化技术栈层出不穷。通过不断的版本迭代 React、Vue 脱颖而出，成为当下最受欢迎的两大技术栈。    
 
 ![](https://img12.360buyimg.com/imagetools/jfs/t1/133199/18/8829/18540/5f4cadb1E8e9a5c9c/09d136c7602574a0.png)
 
-仅 7 个月的时间，两个技术栈的下载量就突破了百万，React 甚至突破了千万。不管是现下流行的 React、Vue，还是红极一时的 Angular、Ember，只要是单页 Web 应用，都离不开前端路由的配合。如果我们把单页 Web 应用比作一间房，每个页面分别对应房子中的每个房间，那么路由就是房间的门，不管房间装饰的有多漂亮，没有门，也无法展示在用户眼前，路由在单页面 Web 应用的地位也就不言而喻了。   
+仅 7 个月的时间，两个技术栈的下载量就突破了百万，React 甚至突破了千万。不管是现下流行的 React、Vue，还是红极一时的 Angular、Ember，只要是单页面 Web 应用，都离不开前端路由的配合。如果把单页面 Web 应用比作一间房，每个页面对应房子中的各个房间，那么路由就是房间的门，不管房间装饰的有多漂亮，没有门，也无法展示在用户眼前，路由在单页面 Web 应用的地位也就不言而喻了。   
 
-为了能为大家更好的介绍前端，小编将前端路由分成了三大部分《SPA 路由三部曲之初体验》、《SPA 路由三部曲之实战篇》、《SPA 路由三部曲之进阶篇》一步一步的探索前端路由的实现原理。先从前端路由的前世今生、基础原理解析、vue-router 与 react-router 应用对比三部分对前端路由进行初步了解。  
+为了能更详细的介绍前端路由，小编将从三个层面，由浅入深，一步一步的带领大家探索前端路由的实现原理。首先通过《SPA 路由三部曲之初体验》了解前端路由的基础知识，紧接着《SPA 路由三部曲之实战篇》将带领大家实现属于自己的 vue-router，最后《SPA 路由三部曲之进阶篇》将挑战自我，深度解析 vue-router 源码。《SPA 路由三部曲之初体验》将从端路由的前世今生、基础原理解析、vue-router 与 react-router 应用对比三部分对前端路由进行初步了解。  
+
+![](https://img12.360buyimg.com/imagetools/s600x500_jfs/t1/128328/27/17091/194616/5fa13021E3226ab8c/f317a383e3d3e13b.png)
+
 ## 前端路由前世今生  
 
 前端路由发展到今天，经历了后端路由、前后端路由过渡、前端路由的过程，如果你对前端路由的理解还是懵懵懂懂，那有必要了解一下它的发展过程。
 
 ### 后端路由
 
-路由这个概念最先是在后端出现的，在 Web 开发早期的「刀耕火种」年代里，一直是后端路由占据主导地位，页面渲染完全依赖服务器。  
+路由这个概念最先是在后端出现的， Web 开发还在「刀耕火种」年代时，一直是后端路由占据主导地位，页面渲染完全依赖服务器。  
 
 在最开始的时候，HTML、CSS、JavaScript 的文件以及数据载体 json(xml) 等文件都是放到后端服务器目录下的，并且这些文件彼此是没有联系的，想要改变网站的布局，可能会改上百个 HTML，繁琐且毫无技术含量。后来聪明的工程师就将相同的 HTML 整理成模板，进行复用，成功减少了前端的工作量。前端工程师开始用模板语言代替手写 HTML，后端服务器目录的文件也变成了不同的模板文件。
   
-这个时期，不管 Web 后端是什么语言的框架，都会有一个专门开辟出来的路由模块或者路由区域，用来匹配用户给出的 URL 地址，以及一些表单提交、页面请求的地址。用户进行页面切换时，浏览器发送不同的 URL 请求，服务器接收到浏览器的请求时，通过解析不同的 URL 地址进行后端路由匹配，将模板拼接好后将之返回给前端完整的 HTML，浏览器拿到这个 HTML 文件后直接解析展示了，也就是所谓的服务端渲染。
+这个时期，不管 Web 后端是什么语言的框架，都会有一个专门开辟出来的路由模块或者路由区域，用来匹配用户给出的 URL 地址，以及一些表单提交、页面请求地址。用户进行页面切换时，浏览器发送不同的 URL 请求，服务器接收到浏览器的请求时，通过解析不同的 URL 地址进行后端路由匹配，将模板拼接好后将之返回给前端完整的 HTML，浏览器拿到这个 HTML 文件后直接解析展示了，也就是所谓的服务端渲染。
 
 ![服务端渲染](https://img12.360buyimg.com/imagetools/s600x400_jfs/t1/145816/20/5225/177101/5f325408Eb6b62cc1/09641c19f311ff92.png)
 
@@ -29,15 +34,15 @@
 
 直到 1998 年，微软的 Outloook Web App 团队提出 Ajax 的基本概念（XMLHttpRequest 的前身），相信大家对这个技术已经非常熟悉了，浏览器实现异步加载的一种技术方案，并在 IE5 通过 ActiveX 来实现了这项技术。有了 Ajax 后，页面操作就不用每次都刷新页面，体验带来了极大的提升。
   
-2005 年 Google Map 的发布让 Ajax 这项技术发扬光大，向人们展示了它真正的魅力，让其不仅仅局限于简单的数据和页面交互，也为后来异步交互体验方式的繁荣发展奠定了基础。2008 年，Google V8 引擎发布，JavaScript 随之崛起，前端工程师开始借鉴后端模板思想，单页面应用就此诞生。2009 年，Google 发布 Angularjs 将 MVVM 及单页应用发扬光大，由衷的佩服 Google 的强大。
+2005 年 Google Map 的发布让 Ajax 这项技术发扬光大，向人们展示了它真正的魅力，让其不仅仅局限于简单的数据和页面交互，也为后来异步交互体验方式的繁荣发展奠定了基础。2008 年，Google V8 引擎发布，JavaScript 随之崛起，前端工程师开始借鉴后端模板思想，单页面应用就此诞生。2009 年，Google 发布 Angularjs 将 MVVM 及单页面应用发扬光大，由衷的佩服 Google 的强大。
 
-单页应用不仅在页面交互是无刷新的，连页面跳转都是无刷新的，为了配合实现单页应用，前端路由孕育而生。
+单页应用不仅在页面交互是无刷新的，连页面跳转都是无刷新的，为了配合实现单页面应用跳转，前端路由孕育而生。
 
 ### 前端路由
 
 前端路由相较于后端路由的一个特点就是页面在不完全刷新的情况下进行视图的切换。页面 URL 变了，但是并没有重新加载，让用户体验更接近原生 app。
   
-前端路由的兴起，使得页面渲染由服务器渲染变成了前端渲染。为什么这么说呢！请求一个 URL 地址时，服务器不需要拼接模板，只需返回一个HTML即可，一般浏览器拿到的 html 是这样的：  
+前端路由的兴起，使得页面渲染由服务器渲染变成了前端渲染。为什么这么说呢！请求一个 URL 地址时，服务器不需要拼接模板，只需返回一个 HTML 即可，一般浏览器拿到的 HTML 是这样的：  
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -52,19 +57,19 @@
 </body>
 </html>
 ```
-这里空荡荡的只有一个```<div id="app"></div>```，以及一系列的 js 文件，所以说这个 html 是不完整的。我们看到的页面是通过这一系列的 js 渲染出来的，也就是前端渲染。前端渲染通过客户端的算力来解决页面的构建，很大程度上缓解了服务端的压力。
+这里空荡荡的只有一个 ```<div id="app"></div>```，以及一系列的 js 文件，所以说这个 HTML 是不完整的。我们看到的页面是通过这一系列的 js 渲染出来的，也就是前端渲染。前端渲染通过客户端的算力来解决页面的构建，很大程度上缓解了服务端的压力。
 
 ![客户端渲染](https://img11.360buyimg.com/imagetools/s600x450_jfs/t1/122174/23/9461/155946/5f325431Ed7c3ac00/131fbced1f4ffe8c.png)
 
-单页面开发是趋势，但也不能避重就轻，忽略前端渲染的缺点。由于服务器没有保留完整的 HTML，前端通过 js 进行 dom 的拼接，需要耗费额外的时间，不如服务端渲染速度快，也不利于 ESO 优化。所以说，实际开发中，不能盲目选择渲染方式，一定要基于业务场景。对于没有复杂交互，对于 SEO 要求严格的网站，服务器渲染也是正确的选择。
+单页面开发是趋势，但也不能避重就轻，忽略前端渲染的缺点。由于服务器没有保留完整的 HTML，通过 js 进行动态 dom 拼接，需要耗费额外的时间，不如服务端渲染速度快，也不利于 SEO 优化。所以说，实际开发中，不能盲目选择渲染方式，一定要基于业务场景。对于没有复杂交互，SEO 要求严格的网站，服务器渲染也是正确的选择。
 
 ## 基础原理解析  
 
-路由描述了 URL 与 UI 之间的映射关系，这种映射是单向的，即 URL 变化引起 UI 更新（无需刷新页面）。前端路由最主要的显示方式有2种：  
+路由描述了 URL 与 UI 之间的映射关系，这种映射是单向的，即 URL 变化引起 UI 更新（无需刷新页面）。前端路由最主要的展示方式有 2 种：  
 * 带有 hash 的前端路由：地址栏 URL 中有 #，即 hash 值，不好看，但兼容性高。
 * 不带 hash 的前端路由：地址栏 URL 中没有 #，好看，但部分浏览器不支持，还需要后端服务器支持。
 
-在 vue-router 和 react-router 中，这两种展示形式，被定义成2种模式，即 Hash 模式与 History 模式。前端路由实现很简单，本质上就是检测 URL 的变化，截获 URL 地址，然后解析来匹配路由规则。现在就跟着小编一起来揭开它神秘的面纱吧！
+在 vue-router 和 react-router 中，这两种展示形式，被定义成两种模式，即 Hash 模式与 History 模式。前端路由实现原理很简单，本质上就是检测 URL 的变化，截获 URL 地址，通过解析、匹配路由规则实现 UI 更新。现在就跟着小编一起来揭开它神秘的面纱吧！
 
 ### Hash 
 
@@ -72,7 +77,7 @@
 
 ![URL 组成](https://img12.360buyimg.com/imagetools/jfs/t1/116233/29/15155/17882/5f3a73a9Ef5592b82/7dbf415ead483d09.png)  
 
-hash 值指的是 URL 地址中的锚部分，也就是 # 后面的部分。hash 也称作锚点，是用来做页面定位的，可以是对象的 id 元素显示在可视区内。在 html5 的 history 出现前，基本都是使用 hash 来实现前端路由的。Hash 有以下几个特点：
+hash 值指的是 URL 地址中的锚部分，也就是 # 后面的部分。hash 也称作锚点，是用来做页面定位的，与 hash 值对应的 DOM id 显示在可视区内。在 HTML5 的 history 新特性出现前，基本都是使用监听 hash 值来实现前端路由的。hash 值更新有以下几个特点：
 
 * hash 值是网页的标志位，HTTP 请求不包含锚部分，对后端无影响
 * 因为 HTTP 请求不包含锚部分，所以 hash 值改变时，不触发网页重载
@@ -81,11 +86,11 @@ hash 值指的是 URL 地址中的锚部分，也就是 # 后面的部分。hash
 
 而改变 hash 值的方式有 3 种：
 
-1. ```<a/>```标签使锚点值变化，例：```<a href='#/home'></a>``` 
+1. a 标签使锚点值变化，例：```<a href='#/home'></a>``` 
 2. 通过设置 window.location.hash 的值
 3. 浏览器前进键（history.forword()）、后退键(history.back())
 
-综上所述，这 3 种改变 hash 值的方式，并不会导致浏览器向服务器发送请求，浏览器不发出请求，也就不会刷新页面。hash 值改变，触发全局 window 对象上的 hashchange 事件。所以 hash 模式路由通过 hashchange 事件来监听到 URL 的变化，从而进行 DOM 操作来模拟页面跳转。    
+综上所述，这 3 种改变 hash 值的方式，并不会导致浏览器向服务器发送请求，浏览器不发出请求，也就不会刷新页面。hash 值改变，触发全局 window 对象上的 hashchange 事件。所以 hash 模式路由就是利用 hashchange 事件监听 URL 的变化，从而进行 DOM 操作来模拟页面跳转。    
 ![hash 流程图](https://img13.360buyimg.com/imagetools/jfs/t1/119923/18/9500/67035/5f335933Ee392a6e3/cf3e580523d52c0a.png)    
 ### History   
 
@@ -128,7 +133,7 @@ replaceState 的使用与 pushState 非常相似，都是改变当前的 URL，�
 
 ![](https://storage.360buyimg.com/imgtools/4ae3e3d1db-8c0c8230-e763-11ea-9f1f-7bf9739df39d.gif)
 
-从上面的动画，我们就可以知道，通过 ```history.replaceState({ tag: "cart" }, "", "cart.html")``` 改变 URL 之前，history 的历史记录为 ```/classify.html```、```/home.html```，URL 改变之后，点击浏览器后退键，直接回到了 ```/classify.html```，跳过了 ```/home.html```。也就证明了 replaceState 将历史记录中的 ```/home.html```  修改为了 ```/cart.html```，而不是新建了```/cart.html```。
+从上面的动画，我们就可以知道，通过 ```history.replaceState({ tag: "cart" }, "", "cart.html")``` 改变 URL 之前，history 的历史记录为 ```/classify.html```、```/home.html```，URL 改变之后，点击浏览器后退键，直接回到了 ```/classify.html```，跳过了 ```/home.html```。也就证明了 replaceState 将历史记录中的 ```/home.html```  修改为 ```/cart.html```，而不是新建 ```/cart.html```。
 
 #### window.onpopstate() 
 
@@ -138,7 +143,7 @@ replaceState 的使用与 pushState 非常相似，都是改变当前的 URL，�
 
 > 每当处于激活状态的历史记录条目发生变化时，popstate 事件就会在对应 window 对象上触发。 如果当前处于激活状态的历史记录条目是由 history.pushState() 方法创建,或者由 history.replaceState() 方法修改过的, 则 popstate 事件对象的 state 属性包含了这个历史记录条目的 state 对象的一个拷贝。**调用 history.pushState() 或者 history.replaceState() 不会触发 popstate 事件**。popstate 事件只会在浏览器某些行为下触发, 比如点击后退、前进按钮(或者在JavaScript 中调用 history.back()、history.forward()、history.go()方法)，此外，a 标签的锚点也会触发该事件。  
 
-第一次读到这段话的时候似懂非懂，思考了很久，也做了很多的例子，发现其中的坑还是很多，这些坑主要是来自不同的浏览器机制。官方文档对 ```window.onpopstate()``` 的描述很少，也有很多不明确的地方，根据自己的测试，来拆解一下官网给描述，如果有不对的，还希望大家指出。  
+第一次读到这段话的时候似懂非懂，思考了很久，也做了很多的例子，发现其中的坑很多，这些坑主要是因为每个浏览器机制不同。官方文档对 ```window.onpopstate()``` 的描述很少，也有很多不明确的地方，根据自己的测试，来拆解一下官网描述，如果有不对的，还希望大家指出。  
 
 **1.每当处于激活状态的历史记录条目发生变化时，popstate 事件就会在对应 window 对象上触发。**  
 
@@ -184,9 +189,9 @@ popstate 事件虽然触发了，但是是 ```cart.html``` 页面中定义的 po
 
 ![](https://img13.360buyimg.com/imagetools/jfs/t1/134474/30/8217/130355/5f4626dbE91712221/1945b8657a376d23.png)
 
-在浏览器回退时，Safari 浏览器与 Chrome 浏览器对于页面的加载出现了差异。```classify.html``` 回退到```cart.html``` ，URL 变成了 ```/cart.html```,但触发了 ```home.html``` 中的 popstate 事件，继续回退，URL 变成了 ```/home.html```, 依然触发了 ```home.html``` 中 popstate 事件。
+在浏览器回退时，Safari 浏览器与 Chrome 浏览器对于页面的加载出现了差异。```classify.html``` 回退到 ```cart.html``` ，URL 变成了 ```/cart.html```,但触发了 ```home.html``` 中的 popstate 事件，继续回退，URL 变成了 ```/home.html```, 依然触发了 ```home.html``` 中 popstate 事件。
 
-Chrome 浏览器与 Safari 浏览器差异的产生与浏览器对 popstate 事件处理有关系。至于是怎样处理的，小编也没有研究清楚。虽然 Chrome 浏览器与 Safari 浏览器对于 popstate 事件的处理方式不一样，但是 URL 的回退路径是一致的，完全符合历史记录后进先出的规则。
+Chrome 浏览器与 Safari 浏览器差异的产生与浏览器对 popstate 事件处理有关系。至于浏览器内部是怎样处理的，小编也没有研究清楚。虽然 Chrome 浏览器与 Safari 浏览器对于 popstate 事件的处理方式不一样，但是 URL 的回退路径是一致的，完全符合历史记录后进先出的规则。
 
 在实际开发中，这种情况也是存在的：URL 由 ```/home.html``` 到 ```/cart.html``` 的改变，就类似单页面开发中的跳转。若此时在 ```cart.html``` 中，需要使用 pushState 跳出单页面，进入登录页，用户在登录页点击浏览器回退，或移动端手势返回。上述情况就会出现，Chrome 浏览器与 Safari 浏览器渲染页面不一致。
 
@@ -266,7 +271,7 @@ class App extends Component {
 
 * react-router 的实现依赖 history.js，history.js 是 JavaScript 库。```<BrowserRouter>``` 、 ```<HashHistory>``` 分别基于 history.js 的 BrowserHistory 类、HashHistory 类实现。
 
-* BrowserHistory 类通过 pushState、replaceState 和 popstate 实现，但并没有类似 vue-router 的兼容处理。HashHistory 类则是直接通过 ```location.hash```、```location.replace``` 和 hashchange 实现，没有优先使用 history 的新特性的处理。
+* BrowserHistory 类通过 pushState、replaceState 和 popstate 实现，但并没有类似 vue-router 的兼容处理。HashHistory 类则是直接通过 ```location.hash```、```location.replace``` 和 hashchange 实现，没有优先使用 history 新特性的处理。
 
 ### 嵌套路由与子路由
 
@@ -276,9 +281,6 @@ class App extends Component {
 
 router.js
 ```
-import Nest from '@/view/nest.vue'
-import NestFirst from '@/view/nest/first.vue'
-import NestSecond from '@/view/nest/second.vue'
 const router = new Router({
     mode:'history',
     routes: [{
@@ -296,18 +298,16 @@ const router = new Router({
 nest.vue
 ```
 <div class="nest">
-    一级路由
-    <router-view></router-view>
+    一级路由 <router-view></router-view>
 </div>
 ```
 first.vue
 ```
 <div class="nest">
-    二级路由
-    <router-view></router-view>
+    二级路由 <router-view></router-view>
 </div>
 ```
-在 ```/nest```下设置了二级路由 ```/first```，二级对应的组件渲染在一级路由匹配的组件```<router-view/>``` 标识的地方。在配置子路由时，path 只需要是当前路径即可。
+在 ```/nest``` 下设置了二级路由 ```/first```，二级对应的组件渲染在一级路由匹配的组件 ```<router-view/>``` 标识的地方。在配置子路由时，path 只需要是当前路径即可。
 
 ![](https://img14.360buyimg.com/imagetools/jfs/t1/117239/33/16812/26484/5f4c9ed8E126d1fc9/0e0744f59404e0ce.png)
 
@@ -326,7 +326,6 @@ const Route = () => (
 ```
 nest.js
 ```
-import NestFirst from './first'
 export default class Nest extends Component {
     render() {
         return (
@@ -342,7 +341,6 @@ export default class Nest extends Component {
 ```
 first.js
 ```
-import NestSecond from './second'
 export default class NestFirst extends Component {
     render() {
         return (
@@ -357,7 +355,7 @@ export default class NestFirst extends Component {
 }
 ```
 
-```/nest```为一级路由，```/fitst```二级路由匹配的组件，作为一级路由的子组件。react-router 定义子路由 path 时，需要写完整的路径，即父路由的路径要完整。
+```/nest``` 为一级路由，```/fitst``` 二级路由匹配的组件，作为一级路由的子组件。react-router 定义子路由 path 时，需要写完整的路径，即父路由的路径要完整。
 
 ### 路由守卫
 
@@ -369,7 +367,7 @@ a. 全局守卫
 * afterEach —— 全局后置钩子  
 
 b. 路由独享守卫  
-路由配置上可以直接定义 beforeEnter 守卫。
+* 路由配置上可以直接定义 beforeEnter 守卫。
 
 c. 组件内守卫  
 * beforeRouteEnter —— 在渲染该组件的对应路由被 confirm 前调用，不能获取组件实例 `this`，因为当守卫执行前，组件实例还没被创建。
@@ -395,11 +393,9 @@ export default new Vue({
 
 **2. react-router 中 history、location 对象**
 
-在每个由```<Route />``` 包裹的组件中提供了 history、location 对象。利用 ```this.props.history``` 的 push、replace 方法实现路由导航，```this.props.location``` 获取当前激活的路由信息。
+在每个由 ```<Route />``` 包裹的组件中提供了 history、location 对象。利用 ```this.props.history``` 的 push、replace 方法实现路由导航，```this.props.location``` 获取当前激活的路由信息。
 
 ```
-import Home from './pages/home';
-import HeaderNav from "./pages/header"
 const BasicRoute = () => (
     <div>
         <HeaderNav></HeaderNav>
@@ -411,14 +407,14 @@ const BasicRoute = () => (
     </div>
 );
 ```
-如果想要获得 history、location 一定是```<Route />```包裹的组件。所以在```<HeaderNav/>```中是无法获取这两个对象的，而```<Home/>```组件是可以的。
+如果想要获得 history、location 一定是 ```<Route />``` 包裹的组件。所以在 ```<HeaderNav/>``` 中是无法获取这两个对象的，而 ```<Home/>``` 组件是可以的。
 
 > vue-router 是全局配置方式，react-router 是全局组件方式，但两者呈现给开发者的功能实际上是大同小异的。当然，vue-router 与 react-router 在使用上的差异不仅仅是小编说的这些。说到底，不管用什么样的方式实现，前端路由的实现原理都是不会变的。
 
 ## 总结
 
-前端路由的初步体验马上就要结束了，在决定深入研究前端路由之前，我其实自信满满，感觉应该不会花费很大的精力与时间，可事实是，涉及到的知识盲区也越来越多，信心在逐渐瓦解。不过结局还是好的，我收获了很多，也希望《前端路由的初体验》这篇文章能让大家有所收获，哪怕只是一个知识点。
+前端路由的初步体验马上就要结束了，在决定深入研究前端路由之前，小编自信满满，感觉应该不会花费很大的精力与时间，可事实是，涉及到的知识盲区越来越多，信心在逐渐瓦解。好在结局不错，收获了很多，也希望《前端路由的初体验》这篇文章能让大家有所收获，哪怕只是一个知识点。
 
-小编已经在争分夺秒的准备《SPA 路由三部曲之实战篇》、《SPA 路由三部曲之进阶篇》了，希望不会让小伙伴们失望的，请充满期待吧！
+小编已经在争分夺秒的准备《SPA 路由三部曲之实战篇》、《SPA 路由三部曲之进阶篇》过程中了，小编相信是不会让小伙伴们失望的，请充满期待吧！
 
 PS：文章中有些是个人观点，如果不对，欢迎交流、指正！
