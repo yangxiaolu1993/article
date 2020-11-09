@@ -6,7 +6,7 @@
 
 ## 整体把握
 
-Vue-Router 的源码代码量不算很多，但是内容却也不少，函数一层一层的嵌套。为了能更好的帮助大家整体把握 Vue-Router 源码，小编先从整体设计思路、项目结构、重要函数三个方面介绍 vue-router。
+Vue-Router 的源码代码量不算很多，但是内容却也不少，函数一层一层的嵌套。为了能更好的帮助大家整体把握 Vue-Router 源码，小编将从整体设计思路、项目结构、重要函数三个方面介绍 vue-router。
 
 ### 设计思路
 
@@ -111,7 +111,29 @@ const route: Route = {
 
 route 对象是在 ./util/route.js 的 createRoute() 函数中定义的，通过 VueRouter 类的 match() 函数调用。除了 matched 属性，了解 VueRouter 的同学对其他属性应该都不陌生。
 
-formatMatch 函数通过深度循环遍历 record.parent，使 matched 属性记录了当前路由对应的所有嵌套路由片段的路由记录，也就是所有父路由对象都在这个数组里面，包含当前路由的路由信息，matched 属性在路由导航守卫中起关键的作用。路由切换时，通过对比目标路由 matched 与当前路由 matched，找到需要要被销毁的组件（deactivated）、要被激活的组件（activated）和需要更新的组件（updated），通过 runQueue() 函数完成路由导航守卫。
+formatMatch 函数通过深度循环遍历 record.parent，使 matched 属性记录了当前路由对应的所有嵌套路由片段的路由记录，也就是所有父路由对象按照顺序都在这个数组里面，包含当前路由的路由信息，matched 属性在路由导航守卫中起关键的作用。
+
+```
+function resolveQueue (
+  current: Array<RouteRecord>,
+  next: Array<RouteRecord>
+){
+  const max = Math.max(current.length, next.length)
+  for (let i = 0; i < max; i++) {
+    // 当前路由路径和目标路由路径不同时跳出遍历
+    if (current[i] !== next[i]) {
+      break
+    }
+  }
+  return {
+    updated: next.slice(0, i),
+    activated: next.slice(i),
+    deactivated: current.slice(i)
+  }
+}
+```
+
+路由切换时，通过对比目标路由 matched 与当前路由 matched 的每一个父组件的不同，找到需要要被销毁的组件（deactivated）、要被激活的组件（activated）和需要更新的组件（updated），通过 runQueue() 函数完成路由导航守卫，关看代码的多少会有些晕，举例说明一下：
 
 ```
 const routes = [{
@@ -126,19 +148,19 @@ const routes = [{
   }]
 }]
 ```
-按照 Vue-Router 的设计思路，```/home/childOne``` 对应的 route.matched 为 ```[/home 路由记录，/childOne 路由记录]```，```/home/childTwo``` 对应的 route.matched 为 ```[/home 路由记录，/childTwo 路由记录]```。
+按照 Vue-Router 的设计思路，```/home/childOne``` 对应的 route.matched 为 ```[/home 路由记录，/childOne 路由记录]```，```/home/childTwo``` 对应的 route.matched 为 ```[/home 路由记录，/childTwo 路由记录]```。当路由由  ```/home/childOne``` 切换为 ```/home/childTwo``` 时，```/home/childTwo``` 即为目标路由 next，```/home/childOne``` 为当前路由 current。从 i=0 开始循环遍历，比较 next.matched[i] 与 current.matched[i]，当不等时，停止遍历，记录 i 值。此时，next.slice(i) 为需要更新的组件，current.slice(i) 为需要销毁的组件，next.slice(0, i) 为需要更新的组件。根据路由切换时父组件与子组件生命周期顺序依次执行，就完成了路由跳转。
 
 ## VueRouter 类
 
-通过一张图，先整体把握 VueRouter 类：
+掌握了 VueRouter 的整体结构后，思路会不会清晰很多，然后在通过一张图，整体把握 VueRouter 类：
 
 ![](https://img11.360buyimg.com/imagetools/jfs/t1/136305/5/7923/513653/5f433989Ec08e2e21/58f33ddbdb66e578.png)
 
-VueRouter 的本质就是一个类，其中定义了很多的属性和方法。在这里小编通过讲解其中关键的函数，帮大家整理 VueRouter 的实现思路。首先先来解析一下入口文件 index.js。
+VueRouter 的本质就是一个类，其中定义了很多的属性和方法。在这里小编通过讲解其中关键的函数，帮大家整理 VueRouter 的实现思路。首先先来解析一下入口文件 index.js，其定义了 VueRouter 类。
 
 ### router.matcher 对象与 router.match 函数
 
-VueRouter 对象初始化时，this.matcher 对象与 match 函数，仔细观察就会发现，this.matcher 对象是通过 createMatcher 函数定义的，而 match 函数最终调用的就是 this.matcher.match() 函数。createMatcher 函数做了什么事情呢？
+VueRouter 对象初始化时，自身定义了 this.matcher 对象属性与 match 函数，阅读后就会发现，this.matcher 对象是通过 createMatcher 函数定义的，而 match 函数最终调用的就是 this.matcher.match() 函数，也就是，createMatcher 函数返回了一个对象，其中 match() 函数就是改对象的一个属性，那 createMatcher 函数做了什么事情呢？
 
 **createMatcher()**
 createMatcher 函数相关的实现都在 src/create-matcher.js中。
@@ -163,7 +185,7 @@ export function createMatcher (
   }
 }
 ```
-从上面简化后的代码可以看出来，createMatcher 接收2个参数，routes 是 new VueRouter 实例化时，用户定义的路由配置，router 是 new VueRouter 返回的实例。routes 是一个定义了路由配置的数组，通过 createRouteMap 函数处理为 pathList, pathMap, nameMap。createMatcher 最终返回了一个对象 { match, addRoutes } 。也就是说 router.matcher 是一个对象，它对外暴露了 match 方法和 addRoutes 方法。
+从上面简化后的代码可以看出来，createMatcher 接收2个参数，routes 是 new VueRouter 实例化时，用户定义的路由配置，router 是 new VueRouter() 返回的实例。routes 是一个定义了路由配置的数组，通过 createRouteMap 函数处理为由 pathList, pathMap, nameMap 构成的对象。createMatcher 最终返回了一个对象 { match, addRoutes } 。也就是说 router.matcher 是一个对象，它对外暴露了 match 方法和 addRoutes 方法。
 
 match 和 addRoutes 方法的定义都用到了 pathList, pathMap, nameMap ，那我们就先来看一下，createRouteMap 是如何定义这3个对象的。
 
@@ -173,20 +195,11 @@ createRouteMap 函数相关的实现都在 src/create-route-map.js中。
 ```
 export function createRouteMap (
   routes: Array<RouteConfig>,
-  oldPathList?: Array<string>,
-  oldPathMap?: Dictionary<RouteRecord>,
-  oldNameMap?: Dictionary<RouteRecord>
-): {
-  pathList: Array<string>,
-  pathMap: Dictionary<RouteRecord>,
-  nameMap: Dictionary<RouteRecord>
-} {
-  // pathList 被用于控制路由匹配优先级
-  const pathList: Array<string> = oldPathList || []
-  // 路径路由映射表
-  const pathMap: Dictionary<RouteRecord> = oldPathMap || Object.create(null)
-  // 路由名称路由映射表
-  const nameMap: Dictionary<RouteRecord> = oldNameMap || Object.create(null)
+  ...
+){
+  const pathList: Array<string> = oldPathList || []  // pathList 被用于控制路由匹配优先级
+  const pathMap: Dictionary<RouteRecord> = oldPathMap || Object.create(null)  // 路径路由映射表
+  const nameMap: Dictionary<RouteRecord> = oldNameMap || Object.create(null) // 路由名称路由映射表
   routes.forEach(route => {
     addRouteRecord(pathList, pathMap, nameMap, route)
   })
@@ -206,7 +219,8 @@ export function createRouteMap (
   }
 }
 ```
-createRouteMap 函数主要是把用户的路由匹配选项按照一定的规则转换成几张路由映射表，后面路由切换就是依据这几个映射表，这几张路由表是很重要的。从上面的代码可以看出，createRouteMap 为每一个 route 执行 addRouteRecord 方法生成一条记录。
+
+createRouteMap 函数主要是把用户的路由匹配选项按照一定的规则转换成 3 张路由映射表，通过循环遍历 routes 为每一个 route 执行 addRouteRecord 方法生成一条记录。
 
 **addRouteRecord()**
 ```
@@ -220,26 +234,20 @@ function addRouteRecord (
 ) {
     const { path, name } = route
     ......
-    // 先创建一条路由记录
-    const record: RouteRecord = {...}
-    // 如果该 route 是嵌套路由（有子路由），循环遍历解析嵌套路由
+    const record: RouteRecord = {...}   // 先创建一条路由记录
     if (route.children) {
         ......
         route.children.forEach(child => {
-            const childMatchAs = matchAs
-                ? cleanPath(`${matchAs}/${child.path}`)
-                : undefined
+            const childMatchAs = matchAs ? cleanPath(`${matchAs}/${child.path}`) : undefined
             addRouteRecord(pathList, pathMap, nameMap, child, record, childMatchAs)
         })
     }
-    // 如果有多个相同的路径，只有第一个起作用，后面的全部忽略
-    // 为 pathList、pathMap 添加一条记录
+    // 如果有多个相同的路径，只有第一个起作用，后面的全部忽略，保证路由的排他性
     if (!pathMap[record.path]) {
         pathList.push(record.path)
         pathMap[record.path] = record
     }
     // 如果 route 中设置了 name 属性，为 nameMap 添加一条记录
-    // 如果有多个相同的 name，只有第一个起作用，后面的全部忽略
     if (name) {
         if (!nameMap[name]) {
             nameMap[name] = record
@@ -247,77 +255,34 @@ function addRouteRecord (
     }
 }
 ```
-addRouteRecord 函数，先创建一条路由记录对象。如果当前的路由记录有嵌套路由的话，就循环遍历继续创建路由记录，并按照路径和路由名称进行路由记录映射。这样所有的路由记录都被记录了。路由记录对象 RouteRecord 都记录了哪些内容：
+还记得在上一节中提到的 RouteRecord 路由记录吗，addRouteRecord 函数的作用就是定义 RouteRecord。addRouteRecord 函数有 6 个入参：
 
-```
-const record: RouteRecord = {
-    path: normalizedPath,    
-    regex: compileRouteRegex(normalizedPath, pathToRegexpOptions), 
-    components: route.components || { default: route.component },
-    instances: {},
-    name,
-    parent,
-    matchAs,
-    redirect: route.redirect,
-    beforeEnter: route.beforeEnter,
-    meta: route.meta || {},
-    props:
-      route.props == null
-        ? {}
-        : route.components
-          ? route.props
-          : { default: route.props }
-}
-```
+* parent
+当前路由的父路由，存放在 RouterRecord 路由记录中的 parent 属性中。
+* matchAs
+Router 构建选项时，可以通过 base 设置应用的基路径，matchAs 就是 base 设置的值。
 
-RouteRecord 是一个对象，包含了一条路由的所有信息: 路径、路由正则、组件实例、路由名称、重定向等等。
-
-* regex：通过 path-to-regexp 生成路由正则，为了匹配嵌套路由，比如：{ path: '/my/:userId'}
-* parent：嵌套路由中父路由的路由记录对象
-* matchAs：嵌套路由子路由匹配标记
-* matched 是当前路由记录对应的所有嵌套路劲片段的路由记录，也就是所有父路由对象都在这个数组里面，包含了当前页面的路由信息
-
-createRouteMap 方法执行后，我们就可以得到由所有路由记录组成的 RouteRecord 树型结构。并得到 path、name 对应的路由映射。通过 path 和 name 能在 pathMap 和 nameMap 快速查到对应的 RouteRecord。
+在函数内部，如果当前的路由配置选项有嵌套路由 children 的话，递归遍历继续创建子路由记录，并按照路径和路由名称进行路由记录映射，保证不管是子路由还是父路由，都被记录在映射表中，parent 记录了上一级父路由。
 
 好了，我们回到 createMatcher，还记得返回值中有一个 match 函数吗？接下来看一下 match 的实现。
 
 **match()**
 
 ```
-/**
- * @param {*} raw 目标路由，字符串或对象
- * @param {*} currentRoute  当前路由
- * @param {*} redirectedFrom  重定向（可忽略）
- */
  function match (
     raw: RawLocation,
     currentRoute?: Route,
     redirectedFrom?: Location
   ): Route {
-    // 将目标路由统一成标准的形式
-    const location = normalizeLocation(raw, currentRoute, false, router)
+    const location = normalizeLocation(raw, currentRoute, false, router)  // 将目标路由统一成标准的形式
     const { name } = location
 
     // 如果有路由名称 name, 就进行 nameMap 映射 
-    // 获取到路由记录，处理路由 params 返回 _createRoute 的返回值
     if (name) {
       const record = nameMap[name]
       ......
       if (!record) return _createRoute(null, location)
-      // 获取嵌套路由中动态路径的 name，如{path:"/my/:userId"}中，最终 paramNames 的值为 ”userId“
-      const paramNames = record.regex.keys
-        .filter(key => !key.optional)
-        .map(key => key.name)
       ......
-      //当前路由存在 params 参数，若 目标路由没有设置此参数 && 路由配置选项 path 中设置，则目标路由设置此 params 参数
-      if (currentRoute && typeof currentRoute.params === 'object') {
-        for (const key in currentRoute.params) {
-          if (!(key in location.params) && paramNames.indexOf(key) > -1) {
-            location.params[key] = currentRoute.params[key]
-          }
-        }
-      }
-      location.path = fillParams(record.path, location.params, `named route "${name}"`)
       return _createRoute(record, location, redirectedFrom)
 
     // 如果路由配置了 path，到 pathList 和 PathMap 里匹配到路由记录 
@@ -336,6 +301,7 @@ createRouteMap 方法执行后，我们就可以得到由所有路由记录组�
     return _createRoute(null, location)
   }
 ```
+match 有匹配、对应的意思，那匹配的是什么呢？当我们通过 this.$router.push() 进行路由跳转时，VueRouter 会通过 match() 根据设置的跳转参数，与上面的定义的路由映射表 pathMap、nameMap 进行路由匹配，获取到目标路由相关的 RouteRecord 记录，并返回 route 对象，即 $route 对象。
 从上面的代码可以知道，match 函数入参为：目标路由(raw)，当前路由(currentRoute)、重定向路由(redirectedFrom)，其中目标路由(raw)为必传，根据 pathList, pathMap, nameMap 映射表，匹配到正确的 RouteRecord 记录。作为 _createRoute 函数的入参，返回 _createRoute 的返回值，也就是 _createRoute 的返回值就是 match 函数的返回值。
 
 **createRoute 创建路由对象**
@@ -506,3 +472,6 @@ const queue: Array<?NavigationGuard> = [].concat({
 到现在为止，我们已将 VueRouter 初始化、路由切换的核心代码讲解完了。路由始终会维护当前的线路，路由切换的时候会把当前线路切换到目标线路，切换过程中会执行一系列的导航守卫钩子函数，会更改 url，同样也会渲染对应的组件，切换完毕后会把目标线路更新替换当前线路，这样就会作为下一次的路径切换的依据。
 
 
+* matched 是当前路由记录对应的所有嵌套路劲片段的路由记录，也就是所有父路由对象都在这个数组里面，包含了当前页面的路由信息
+
+createRouteMap 方法执行后，我们就可以得到由所有路由记录组成的 RouteRecord 树型结构。并得到 path、name 对应的路由映射。通过 path 和 name 能在 pathMap 和 nameMap 快速查到对应的 RouteRecord。
