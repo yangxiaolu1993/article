@@ -6,9 +6,9 @@
 
 仅 7 个月的时间，两个技术栈的下载量就突破了百万，React 甚至突破了千万。不管是现下流行的 React、Vue，还是红极一时的 Angular、Ember，只要是单页面 Web 应用，都离不开前端路由的配合。如果把单页面 Web 应用比作一间房，每个页面对应房子中的各个房间，那么路由就是房间的门，不管房间装饰的有多漂亮，没有门，也无法展示在用户眼前，路由在单页面 Web 应用的地位也就不言而喻了。   
 
-为了能更详细的介绍前端路由，小编将从三个层面，由浅入深，一步一步的带领大家探索前端路由的实现原理。首先通过《SPA 路由三部曲之初体验》了解前端路由的基础知识，紧接着《SPA 路由三部曲之实战篇》将带领大家实现属于自己的 vue-router，最后《SPA 路由三部曲之进阶篇》将挑战自我，深度解析 vue-router 源码。《SPA 路由三部曲之初体验》将从端路由的前世今生、基础原理解析、vue-router 与 react-router 应用对比三部分对前端路由进行初步了解。  
+为了能更详细的介绍前端路由，小编将从三个层面，由浅入深，一步一步的带领大家探索前端路由的实现原理。首先通过《SPA 路由三部曲之核心原理》了解前端路由的核心知识，紧接着《SPA 路由三部曲之 MyVueRouter 实践》将带领大家实现属于自己的 vue-router，最后《SPA 路由三部曲之 VueRouter 源码解析》将挑战自我，深度解析 vue-router 源码。《SPA 路由三部曲之核心原理》将从端路由的前世今生、核心原理解析、vue-router 与 react-router 应用对比三部分对前端路由进行初步了解。  
 
-![](https://img12.360buyimg.com/imagetools/s600x500_jfs/t1/128328/27/17091/194616/5fa13021E3226ab8c/f317a383e3d3e13b.png)
+![](https://img10.360buyimg.com/imagetools/_jfs/t1/151086/1/5561/196538/5fa3bda2Ea23490e2/2148638133b087fc.png)
 
 ## 前端路由前世今生  
 
@@ -22,7 +22,7 @@
   
 这个时期，不管 Web 后端是什么语言的框架，都会有一个专门开辟出来的路由模块或者路由区域，用来匹配用户给出的 URL 地址，以及一些表单提交、页面请求地址。用户进行页面切换时，浏览器发送不同的 URL 请求，服务器接收到浏览器的请求时，通过解析不同的 URL 地址进行后端路由匹配，将模板拼接好后将之返回给前端完整的 HTML，浏览器拿到这个 HTML 文件后直接解析展示了，也就是所谓的服务端渲染。
 
-![服务端渲染](https://img12.360buyimg.com/imagetools/s600x400_jfs/t1/145816/20/5225/177101/5f325408Eb6b62cc1/09641c19f311ff92.png)
+![服务端渲染](https://img12.360buyimg.com/imagetools/_jfs/t1/145816/20/5225/177101/5f325408Eb6b62cc1/09641c19f311ff92.png)
 
 服务端渲染页面，后端有完整的 HTML 页面，爬虫更容易获取信息，有利于 SEO 优化。对于客户端的资源占用更少，尤其是移动端，可以更省电。
 
@@ -57,13 +57,13 @@
 </body>
 </html>
 ```
-这里空荡荡的只有一个 ```<div id="app"></div>```，以及一系列的 js 文件，所以说这个 HTML 是不完整的。我们看到的页面是通过这一系列的 js 渲染出来的，也就是前端渲染。前端渲染通过客户端的算力来解决页面的构建，很大程度上缓解了服务端的压力。
+这里空荡荡的只有一个 &lt;div id="app"&gt;&lt;/div&gt;，以及一系列的 js 文件，所以说这个 HTML 是不完整的。我们看到的页面是通过这一系列的 js 渲染出来的，也就是前端渲染。前端渲染通过客户端的算力来解决页面的构建，很大程度上缓解了服务端的压力。
 
-![客户端渲染](https://img11.360buyimg.com/imagetools/s600x450_jfs/t1/122174/23/9461/155946/5f325431Ed7c3ac00/131fbced1f4ffe8c.png)
+![客户端渲染](https://img11.360buyimg.com/imagetools/_jfs/t1/122174/23/9461/155946/5f325431Ed7c3ac00/131fbced1f4ffe8c.png)
 
-单页面开发是趋势，但也不能避重就轻，忽略前端渲染的缺点。由于服务器没有保留完整的 HTML，通过 js 进行动态 dom 拼接，需要耗费额外的时间，不如服务端渲染速度快，也不利于 SEO 优化。所以说，实际开发中，不能盲目选择渲染方式，一定要基于业务场景。对于没有复杂交互，SEO 要求严格的网站，服务器渲染也是正确的选择。
+单页面开发是趋势，但也不能避重就轻，忽略前端渲染的缺点。由于服务器没有保留完整的 HTML，通过 js 进行动态 DOM 拼接，需要耗费额外的时间，不如服务端渲染速度快，也不利于 SEO 优化。所以说，实际开发中，不能盲目选择渲染方式，一定要基于业务场景。对于没有复杂交互，SEO 要求严格的网站，服务器渲染也是正确的选择。
 
-## 基础原理解析  
+## 核心原理解析  
 
 路由描述了 URL 与 UI 之间的映射关系，这种映射是单向的，即 URL 变化引起 UI 更新（无需刷新页面）。前端路由最主要的展示方式有 2 种：  
 * 带有 hash 的前端路由：地址栏 URL 中有 #，即 hash 值，不好看，但兼容性高。
@@ -85,10 +85,9 @@ hash 值指的是 URL 地址中的锚部分，也就是 # 后面的部分。hash
 * 改变 hash 值会触发 window.onhashchange() 事件  
 
 而改变 hash 值的方式有 3 种：
-
-1. a 标签使锚点值变化，例：```<a href='#/home'></a>``` 
-2. 通过设置 window.location.hash 的值
-3. 浏览器前进键（history.forword()）、后退键(history.back())
+* a 标签使锚点值变化，例：  &lt;a href='#/home'&gt;&lt;/a&gt; 
+* 通过设置 window.location.hash 的值
+* 浏览器前进键（history.forword()）、后退键(history.back())
 
 综上所述，这 3 种改变 hash 值的方式，并不会导致浏览器向服务器发送请求，浏览器不发出请求，也就不会刷新页面。hash 值改变，触发全局 window 对象上的 hashchange 事件。所以 hash 模式路由就是利用 hashchange 事件监听 URL 的变化，从而进行 DOM 操作来模拟页面跳转。    
 ![hash 流程图](https://img13.360buyimg.com/imagetools/jfs/t1/119923/18/9500/67035/5f335933Ee392a6e3/cf3e580523d52c0a.png)    
@@ -97,7 +96,7 @@ hash 值指的是 URL 地址中的锚部分，也就是 # 后面的部分。hash
 在讲解 History 之前，大家先思考一个问题，点击浏览器左上角的回退按钮为什么能回到之前的浏览记录，点击前进按钮就能回到回退之前的浏览记录？这是因为浏览器有一个类似栈的历史记录，遵循先进后出的规则。URL 的每次改变，包括 hash 值的变化都会在浏览器中形成一条历史记录。window 对象通过 history 对象提供对览器历史记录的访问能力。
 
 * history.length 
-    出于安全考虑，History 对象不允许未授权代码访问历史记录中其它页面的 URLs，但可以通过 ```history.length``` 访问历史记录对象的长度。
+    出于安全考虑，History 对象不允许未授权代码访问历史记录中其它页面的 URLs，但可以通过 history.length 访问历史记录对象的长度。
 * history.back()
     回退到上一个历史记录，同浏览器后退键
 * history.forward()
@@ -107,24 +106,24 @@ hash 值指的是 URL 地址中的锚部分，也就是 # 后面的部分。hash
 
 为了配合单页面的发展，HTML5 对 History API 新增的两个方法：pushState()、replaceState()，均具有操纵浏览器历史记录的能力。
 
- #### history.pushState(state, title, URL)
+#### history.pushState(state, title, URL)
 
 pushState 共接收 3 个参数：  
 * state：用于存储该 URL 对应的状态对象，可以通过 history.state 获取
 * title：标题，目前浏览器并不支持
 * URL：定义新的历史 URL 记录，需要注意，新的 URL 必须与当前 URL 同源，不能跨域
 
-pushState 函数会向浏览器的历史记录中添加一条，history.length 的值会 +1，当前浏览器的 URL 变成了新的 URL。需要注意的是：仅仅将浏览器的 URL 变成了新的 URL，页面不会加载、刷新。简单看个例子：
-
+pushState 函数会向浏览器的历史记录中添加一条，history.length 的值会 +1，当前浏览器的 URL 变成了新的 URL。需要注意的是：仅仅将浏览器的 URL 变成了新的 URL，页面不会加载、刷新。简单看个例子：   
 ![](https://storage.360buyimg.com/imgtools/985b95b920-8d5d8ab0-e74c-11ea-98e1-c5d2b444bf4a.gif)
 
 通过 ```history.pushState({ tag: "cart" }, "", "cart.html")```，将 ```/home.html``` 变成 ```/cart.html``` 时，只有 URL 发生了改变，```cart.html``` 页面并没有加载，甚至浏览器都不会去检测该路径是不是存在。这也就是证明了，pushState 在不刷新页面的情况下修改浏览器 URL 链接，单页面路由的实现也就是利用了这一个特性。  
+
 细心地童鞋应该发现了，通过 pushState 设置新的 URL 的方法与通过 ```window.location='#cart'``` 设置 hash 值改变 URL 的方法有相似之处：URL 都发生了改变，在当前文档内都创建并激活了新的历史记录条目，但页面均没有重新渲染，浏览器没有发起请求。那前者的优势又是什么呢？
 
-* 新的 URL 可以是任意同源的 URL，而 ```window.location```，只能通过改变 hash 值才能保证留在当前 document 中，浏览器不发起请求
-* 新的 URL 可以是当前 URL，不改变，就可以创建一条新的历史记录项，而 ```window.location``` 必须设置不同的 hash 值，才能创建。假如当前URL为 ```/home.html#foo```，使用 ```window.location``` 设置 hash 时，hash
+* 新的 URL 可以是任意同源的 URL，而 window.location，只能通过改变 hash 值才能保证留在当前 document 中，浏览器不发起请求
+* 新的 URL 可以是当前 URL，不改变，就可以创建一条新的历史记录项，而 window.location 必须设置不同的 hash 值，才能创建。假如当前URL为 ```/home.html#foo```，使用 window.location 设置 hash 时，hash
  值必须不能是 ```#foo```，才能创建新的历史记录
-* 可以通过 state 参数在新的历史记录项中添加任何数据，而通过 ```window.location``` 改变 hash 的方式，只能将相关的数据转成一个很短的字符串，以 query 的形式放到 hash 值后面
+* 可以通过 state 参数在新的历史记录项中添加任何数据，而通过 window.location 改变 hash 的方式，只能将相关的数据转成一个很短的字符串，以 query 的形式放到 hash 值后面
 * 虽然 title 参数现在还不能被所有的浏览器支持，前端发展这么快，谁能说的准之后发生的事情呢！
 
 #### history.replaceState(state, title, URL)
@@ -137,22 +136,19 @@ replaceState 的使用与 pushState 非常相似，都是改变当前的 URL，�
 
 #### window.onpopstate() 
 
-通过 a 标签或者 ```window.location``` 进行页面跳转时，都会触发 ```window.onload``` 事件，页面完成渲染。点击浏览器的后退键或前进键，根据浏览器的不同机制，也会重新加载（Chrome 浏览器），或保留之前的页面（Safari 浏览器）。而对于通过 ```history.pushState()``` 或 ```history.replaceState()``` 改变的历史记录，点击浏览器的后退键或前进键页面是没有反应的，那该如何控制页面渲染呢？为了配合 ```history.pushState()``` 或 ```history.replaceState()```，HTML5 还新增了一个事件，用于监听 URL 历史记录改变：```window.onpopstate()```。  
+通过 a 标签或者 window.location 进行页面跳转时，都会触发 window.onload 事件，页面完成渲染。点击浏览器的后退键或前进键，根据浏览器的不同机制，也会重新加载（Chrome 浏览器），或保留之前的页面（Safari 浏览器）。而对于通过 history.pushState() 或 history.replaceState() 改变的历史记录，点击浏览器的后退键或前进键页面是没有反应的，那该如何控制页面渲染呢？为了配合 history.pushState() 或 history.replaceState()，HTML5 还新增了一个事件，用于监听 URL 历史记录改变：window.onpopstate()。  
 
 官方对于 ```window.onpopstate()``` 事件的描述是这样的：  
 
-> 每当处于激活状态的历史记录条目发生变化时，popstate 事件就会在对应 window 对象上触发。 如果当前处于激活状态的历史记录条目是由 history.pushState() 方法创建,或者由 history.replaceState() 方法修改过的, 则 popstate 事件对象的 state 属性包含了这个历史记录条目的 state 对象的一个拷贝。**调用 history.pushState() 或者 history.replaceState() 不会触发 popstate 事件**。popstate 事件只会在浏览器某些行为下触发, 比如点击后退、前进按钮(或者在JavaScript 中调用 history.back()、history.forward()、history.go()方法)，此外，a 标签的锚点也会触发该事件。  
+> 每当处于激活状态的历史记录条目发生变化时，popstate 事件就会在对应 window 对象上触发。 如果当前处于激活状态的历史记录条目是由 history.pushState() 方法创建,或者由 history.replaceState() 方法修改过的, 则 popstate 事件对象的 state 属性包含了这个历史记录条目的 state 对象的一个拷贝。调用 history.pushState() 或者 history.replaceState() 不会触发 popstate 事件。popstate 事件只会在浏览器某些行为下触发, 比如点击后退、前进按钮(或者在JavaScript 中调用 history.back()、history.forward()、history.go()方法)，此外，a 标签的锚点也会触发该事件。  
 
-第一次读到这段话的时候似懂非懂，思考了很久，也做了很多的例子，发现其中的坑很多，这些坑主要是因为每个浏览器机制不同。官方文档对 ```window.onpopstate()``` 的描述很少，也有很多不明确的地方，根据自己的测试，来拆解一下官网描述，如果有不对的，还希望大家指出。  
+第一次读到这段话的时候似懂非懂，思考了很久，也做了很多的例子，发现其中的坑很多，这些坑主要是因为每个浏览器机制不同。官方文档对 window.onpopstate() 的描述很少，也有很多不明确的地方，根据自己的测试，来拆解一下官网描述，如果有不对的，还希望大家指出。  
 
 **1.每当处于激活状态的历史记录条目发生变化时，popstate 事件就会在对应 window 对象上触发。**  
 
- 对这句话的理解是，在浏览器中输入一个 URL ，使其处于激活状态，不管通过哪种方式，只要 URL 改变，popstate 就会触发。但实际情况却是：只有通过 pushState 或 replaceState 改变的 URL，在点击浏览器后退键的时候才会触发，如果是通过 a 标签或 ```window.location``` 实现 URL 改变（不是改变锚点）页面跳转，在点击浏览器回退键的时候，并不会触发。对这种情况，我有两个猜测：
-
- 1. popstate 事件是异步函数。由于通过 a 标签或 ```window.location``` 实现 URL 改变时，当前页面卸载，新的页面加载。由于 popstate 事件是异步的，在页面卸载之前并没来得及加载。  
-  
- 2. 只有触发新增的 pushState 与 replaceState 改变的历史记录条目，才会触发 popstate 事件，毕竟 popstate 事件的出现是为了配合 pushState 与 replaceState。  
-
+ 对这句话的理解是，在浏览器中输入一个 URL ，使其处于激活状态，不管通过哪种方式，只要 URL 改变，popstate 就会触发。但实际情况却是：只有通过 pushState 或 replaceState 改变的 URL，在点击浏览器后退键的时候才会触发，如果是通过 a 标签或 window.location 实现 URL 改变（不是改变锚点）页面跳转，在点击浏览器回退键的时候，并不会触发。对这种情况，我有两个猜测：
+ * popstate 事件是异步函数。由于通过 a 标签或 window.location 实现 URL 改变时，当前页面卸载，新的页面加载。由于 popstate 事件是异步的，在页面卸载之前并没来得及加载。
+ * 只有触发新增的 pushState 与 replaceState 改变的历史记录条目，才会触发 popstate 事件，毕竟 popstate 事件的出现是为了配合 pushState 与 replaceState。
 查阅了很多资料，这两个猜测没有得到证实，但有一点可以肯定，想要监听到 popstate 事件，必须是使用 pushState 与 replaceState 改变的历史记录。   
 
 **2.调用 history.pushState() 或者 history.replaceState() 不会触发 popstate 事件，popstate 事件只会浏览器的某些行为下触发。**  
@@ -160,19 +156,19 @@ replaceState 的使用与 pushState 非常相似，都是改变当前的 URL，�
 由于各个浏览器的机制不同，测试结果也是不同的。我们先在 Chrome 浏览器下做个测试：  
 home.html
 ```
-    <div>
-        <h3>home html</h3>
-        <div id="btn" class="btn">跳转至 cart.html</div>
-        <a href="classify.html"> a 标签跳转至 classify.html</a>
-    </div>
-    <script>
-        document.getElementById('btn').addEventListener('click', function(){
-            history.replaceState({ tag: "cart" }, "", "cart.html")
-        }, false); 
-        window.addEventListener('popstate', ()=>{
-            console.log('popstate home 跳转')
-        })
-    </script>
+<div>
+  <h3>home html</h3>
+  <div id="btn" class="btn">跳转至 cart.html</div>
+  <a href="classify.html"> a 标签跳转至 classify.html</a>
+</div>
+<script>
+  document.getElementById('btn').addEventListener('click', function(){
+       history.replaceState({ tag: "cart" }, "", "cart.html")
+   }, false); 
+   window.addEventListener('popstate', ()=>{
+      console.log('popstate home 跳转')
+   })
+</script>
 ```
     
 我们进行这样的操作：当前 URL 为 ```/home.html```，通过 ```history.pushState({ tag: "cart" }, "", "cart.html")``` 将当前 URL 变成了 ```/cart.html```。这个过程中，```home.html``` 中的 popstate 事件确实没有触发。此时点击浏览器后退键，URL 变回了```/home.html```，```home.html``` 中的 popstate 事件触发了。  
@@ -199,7 +195,7 @@ popstate 官网描述是“popstate 事件会在**对应 window 对象**上触�
 
 **3.a 标签的锚点也可以触发 popstate 事件的方法**
 
-与 pushState 和 replaceState 不同，a 标签锚点的变化会立即触发 popstate 事件。这里我们扩展一下思路，a 标签做的事情就是改变了 hash 值，那通过 ```window.location``` 改变 hash 值是不是也是能立即触发 popstate。答案是肯定的，也会立即触发 popstate。
+与 pushState 和 replaceState 不同，a 标签锚点的变化会立即触发 popstate 事件。这里我们扩展一下思路，a 标签做的事情就是改变了 hash 值，那通过 window.location 改变 hash 值是不是也是能立即触发 popstate。答案是肯定的，也会立即触发 popstate。
    
 通过 hash 小节的了解，hash 值的改变会触发 hashchange 事件，所以，hash 值的改变会同时触发 popstate 事件与 hashchange 事件，但如果改变的 hash 值与当前 hash 值一样的话，hashchange 事件不触发，popstate 事件触发。之前我们说过，```window.location``` 设置的 hash 值必须与当前 hash 值不一样才能新建一条历史记录，而 pushState 却可以。
 
@@ -223,7 +219,7 @@ import VueRouter from 'vue-router'
 const routes = [
     { path: '/',name: 'home',component: Home,meta:{title:'首页'} }
 ]
-const router = new myRouter({
+const router = new VueRouter({
     mode:'history',
     routes
 })
@@ -247,37 +243,37 @@ class App extends Component {
 
 ### 基础组件
 
-**1. vue-router 提供的组件主要有 ```<router-link/>``` 和 ```<router-view/>```。**
-* ```<router-link/>``` 可以操作 dom 直接进行跳转，定义点击后导航到哪个路径下；对应的组件内容渲染到 ```<router-view/>``` 中。  
+**1. vue-router 提供的组件主要有 &lt;router-link/&gt; 和 &lt;router-view/&gt;**
+* &lt;router-link/&gt; 可以操作 DOM 直接进行跳转，定义点击后导航到哪个路径下；对应的组件内容渲染到 &lt;router-view/&gt; 中。  
 
-**2. react-router-dom 常用到的是 ```<BrowserRouter/>```、```<HashRouter/> ```、```<Route />```、```<Link />```、```<Switch/>```**
+**2. react-router-dom 常用到的是 &lt;BrowserRouter/&gt;、&lt;HashRouter/&gt;、&lt;Route/&gt;、&lt;Link/&gt;、&lt;Switch/&gt;**
 
-* ```<BrowserRouter/>```、```<HashRouter/> ```组件看名字就知道，用于区分路由模式，并且保证 React 项目具有页面跳转能力。
-* ```<Link />``` 组件与 vue-router 中的 ```<router-link/>``` 组件类似，定义点击后的目标导航路径，对应的组件内容通过 ```<Route />``` 进行渲染。
+* &lt;BrowserRouter/&gt;、&lt;HashRouter/&gt; 组件看名字就知道，用于区分路由模式，并且保证 React 项目具有页面跳转能力。
+* &lt;Link /&gt; 组件与 vue-router 中的 &lt;router-link/&gt; 组件类似，定义点击后的目标导航路径，对应的组件内容通过 &lt;Route /&gt; 进行渲染。
 
-* ```<Switch/>``` 用来将 react-router 由包容性路由转换为排他性路由，每次只要匹配成功就不会继续向下匹配。vue-router 属于排他性路由。
+* &lt;Switch/&gt; 用来将 react-router 由包容性路由转换为排他性路由，每次只要匹配成功就不会继续向下匹配。vue-router 属于排他性路由。
 
 ### 路由模式 
 
 **1. vue-router 主要分为 hash 和 history 两种模式。在 new VueRouter() 时，通过配置路由选项 mode 实现。**
 
-* Hash 模式：地址栏 URL 中有 #。vue-router 优先判断浏览器是否支持 pushState，若支持，则通过 pushState 改变 hash 值，进行目标路由匹配，渲染组件，popstate 监听浏览器操作，完成导航功能，若不支持，使用 ```location.hash``` 设置 hash 值，hashchange 监听 URL 变化完成路由导航。
+* Hash 模式：地址栏 URL 中有 #。vue-router 优先判断浏览器是否支持 pushState，若支持，则通过 pushState 改变 hash 值，进行目标路由匹配，渲染组件，popstate 监听浏览器操作，完成导航功能，若不支持，使用 location.hash 设置 hash 值，hashchange 监听 URL 变化完成路由导航。
 
 * History 模式：地址栏 URL 中没有 #。与 Hash 模式实现导航的思路是一样的。不同的是，vue-router 提供了 fallback 配置，当浏览器不支持 history.pushState 控制路由是否应该回退到 hash 模式。默认值为 true。
 
-    > 网上资料对 Hash 路由模式的原理分析大都是通过 ```location.hash``` 结合 hashchange 实现，与上述描述的 hash 路由模式的实现方式不同，这也是小编最近阅读 vue-router 源码发现的，鼓励小伙伴们读一下，肯定会收获满满！
+    > 网上资料对 Hash 路由模式的原理分析大都是通过 location.hash 结合 hashchange 实现，与上述描述的 hash 路由模式的实现方式不同，这也是小编最近阅读 vue-router 源码发现的，鼓励小伙伴们读一下，肯定会收获满满！
 
-**2. react-router-dom 常用的 2 种模式是 browserHistory、hashHistory，直接用 ```<BrowserRouter>``` 或 ```<HashHistory>``` 将根组件（通常是 ```<App>``` ）包裹起来就能实现。**
+**2. react-router-dom 常用的 2 种模式是 browserHistory、hashHistory，直接用 &lt;BrowserRouter&gt; 或 &lt;HashHistory&gt; 将根组件（通常是 &lt;App&gt; ）包裹起来就能实现。**
 
-* react-router 的实现依赖 history.js，history.js 是 JavaScript 库。```<BrowserRouter>``` 、 ```<HashHistory>``` 分别基于 history.js 的 BrowserHistory 类、HashHistory 类实现。
+* react-router 的实现依赖 history.js，history.js 是 JavaScript 库。&lt;BrowserRouter&gt; 、 &lt;HashHistory&gt; 分别基于 history.js 的 BrowserHistory 类、HashHistory 类实现。
 
-* BrowserHistory 类通过 pushState、replaceState 和 popstate 实现，但并没有类似 vue-router 的兼容处理。HashHistory 类则是直接通过 ```location.hash```、```location.replace``` 和 hashchange 实现，没有优先使用 history 新特性的处理。
+* BrowserHistory 类通过 pushState、replaceState 和 popstate 实现，但并没有类似 vue-router 的兼容处理。HashHistory 类则是直接通过 location.hash、location.replace 和 hashchange 实现，没有优先使用 history 新特性的处理。
 
 ### 嵌套路由与子路由
 
 **1. vue-router 嵌套路由**
 
-在 new VueRouter() 配置路由表时，通过定义 Children 实现嵌套路由，无论第几层的路由组件，都会被渲染到父组件 ```<router-view/>``` 标识的地方。
+在 new VueRouter() 配置路由表时，通过定义 Children 实现嵌套路由，无论第几层的路由组件，都会被渲染到父组件 &lt;router-view/&gt; 标识的地方。
 
 router.js
 ```
@@ -307,13 +303,14 @@ first.vue
     二级路由 <router-view></router-view>
 </div>
 ```
-在 ```/nest``` 下设置了二级路由 ```/first```，二级对应的组件渲染在一级路由匹配的组件 ```<router-view/>``` 标识的地方。在配置子路由时，path 只需要是当前路径即可。
+在 ```/nest``` 下设置了二级路由 ```/first```，二级对应的组件渲染在一级路由匹配的组件 &lt;router-view/&gt; 标识的地方。在配置子路由时，path 只需要是当前路径即可。
 
 ![](https://img14.360buyimg.com/imagetools/jfs/t1/117239/33/16812/26484/5f4c9ed8E126d1fc9/0e0744f59404e0ce.png)
 
 **2. react-router 子路由**
 
-react-router 根组件会被渲染到 ```<Router/>``` 指定的位置，子路由则会作为子组件，由父组件指定该对象的渲染位置。如果想要实现上述 vue-router 嵌套的效果，需要这样设置：
+react-router 根组件会被渲染到 &lt;Router/&gt; 指定的位置，子路由则会作为子组件，由父组件指定该对象的渲染位置。如果想要实现上述 vue-router 嵌套的效果，需要这样设置：
+
 route.js
 ```
 const Route = () => (
@@ -354,25 +351,24 @@ export default class NestFirst extends Component {
     }
 }
 ```
-
-```/nest``` 为一级路由，```/fitst``` 二级路由匹配的组件，作为一级路由的子组件。react-router 定义子路由 path 时，需要写完整的路径，即父路由的路径要完整。
+其中，```/nest``` 为一级路由，```/fitst``` 二级路由匹配的组件，作为一级路由的子组件。react-router 定义子路由 path 时，需要写完整的路径，即父路由的路径要完整。
 
 ### 路由守卫
 
 **1. vue-router 导航守卫分为全局守卫、路由独享守卫、组件内的守卫三种。主要用来通过跳转或取消的方式守卫导航。**  
 
 a. 全局守卫    
-* beforeEach —— 全局前置钩子（每个路由调用前都会触发，根据 from 和 to 来判断是哪个路由触发）
-* beforeResolve —— 全局解析钩子（和 router.beforeEach 类似，区别是在导航被确认之前，同时在所有组件内守卫和异步路由组件被解析之后，解析守卫就被调用）
-* afterEach —— 全局后置钩子  
+* beforeEach — 全局前置钩子（每个路由调用前都会触发，根据 from 和 to 来判断是哪个路由触发）
+* beforeResolve — 全局解析钩子（和 router.beforeEach 类似，区别是在导航被确认之前，同时在所有组件内守卫和异步路由组件被解析之后，解析守卫就被调用）
+* afterEach — 全局后置钩子  
 
 b. 路由独享守卫  
 * 路由配置上可以直接定义 beforeEnter 守卫。
 
 c. 组件内守卫  
-* beforeRouteEnter —— 在渲染该组件的对应路由被 confirm 前调用，不能获取组件实例 `this`，因为当守卫执行前，组件实例还没被创建。
-* beforeRouteUpdate —— 当前路由改变，但是该组件被复用时调用
-* beforeRouteLeave —— 导航离开该组件的对应路由时调用  
+* beforeRouteEnter — 在渲染该组件的对应路由被 confirm 前调用，不能获取组件实例 `this`，因为当守卫执行前，组件实例还没被创建。
+* beforeRouteUpdate — 当前路由改变，但是该组件被复用时调用
+* beforeRouteLeave — 导航离开该组件的对应路由时调用  
 
 **2. react-router 4.0 版本之前，提供了 onEnter 和 onLeave 钩子，实现类似 vue-router 导航守卫的功能，但 4.0 版本后取消了该方法。**
 
@@ -393,7 +389,7 @@ export default new Vue({
 
 **2. react-router 中 history、location 对象**
 
-在每个由 ```<Route />``` 包裹的组件中提供了 history、location 对象。利用 ```this.props.history``` 的 push、replace 方法实现路由导航，```this.props.location``` 获取当前激活的路由信息。
+在每个由 &lt;Route/&gt; 包裹的组件中提供了 history、location 对象。利用 ```this.props.history``` 的 push、replace 方法实现路由导航，```this.props.location``` 获取当前激活的路由信息。
 
 ```
 const BasicRoute = () => (
@@ -407,14 +403,14 @@ const BasicRoute = () => (
     </div>
 );
 ```
-如果想要获得 history、location 一定是 ```<Route />``` 包裹的组件。所以在 ```<HeaderNav/>``` 中是无法获取这两个对象的，而 ```<Home/>``` 组件是可以的。
+如果想要获得 history、location 一定是 &lt;Route /&gt; 包裹的组件。所以在 &lt;HeaderNav/&gt; 中是无法获取这两个对象的，而 &lt;Home/&gt; 组件是可以的。
 
 > vue-router 是全局配置方式，react-router 是全局组件方式，但两者呈现给开发者的功能实际上是大同小异的。当然，vue-router 与 react-router 在使用上的差异不仅仅是小编说的这些。说到底，不管用什么样的方式实现，前端路由的实现原理都是不会变的。
 
 ## 总结
 
-前端路由的初步体验马上就要结束了，在决定深入研究前端路由之前，小编自信满满，感觉应该不会花费很大的精力与时间，可事实是，涉及到的知识盲区越来越多，信心在逐渐瓦解。好在结局不错，收获了很多，也希望《前端路由的初体验》这篇文章能让大家有所收获，哪怕只是一个知识点。
+前端路由的初步体验马上就要结束了，在决定深入研究前端路由之前，小编自信满满，感觉应该不会花费很大的精力与时间，可事实是，涉及到的知识盲区越来越多，信心在逐渐瓦解。好在结局不错，收获了很多，也希望《SPA 路由三部曲之核心原理》这篇文章能让大家有所收获，哪怕只是一个知识点。
 
-小编已经在争分夺秒的准备《SPA 路由三部曲之实战篇》、《SPA 路由三部曲之进阶篇》过程中了，小编相信是不会让小伙伴们失望的，请充满期待吧！
+小编已经在争分夺秒的准备《SPA 路由三部曲之 MyVueRouter 实践》、《SPA 路由三部曲之 VueRouter 源码解析》过程中了，小编相信是不会让你失望的，请充满期待吧！
 
 PS：文章中有些是个人观点，如果不对，欢迎交流、指正！
