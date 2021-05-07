@@ -20,7 +20,7 @@ Vue-Router 的源码代码量不算很多，但是内容却也不少，函数一
 
 通过 new VueRouter 创建 vueRouter 实例时，会通过深度遍历把传入的路由配置项 routes 进行映射解析，保存到 pathMap、nameMap 中，每个 Map 对应一个路由记录，即 RouteRecord。不管在哪种路由模式下，触发路由导航时，都会调用 transitionTo 方法，匹配到目标路由对应的 RouteRecord，通过 confirmTransition 方法完成导航守卫、与 history.current 重新赋值，触发 Vue.util.defineReactive 监听事件, 实现路由切换。
 
-> 在 VueRouter.install 方法中，通过 ```Vue.util.defineReactive(this, '_route', this._router.history.current)``` 把 _route 变成响应式，即 this._router.history.current，_route 通过 Object.defineProperty 挂载到了 vue 实例的 $route 上，也就是说，在咱们经常使用的 this.$route 是响应式的。当 confirmTransition 方法改变 history.current 的值时，_route 就会重新赋值，触发 ```<router-view />``` 组件进行重新渲染。
+> 在 VueRouter.install 方法中，通过 ```Vue.util.defineReactive(this, '_route', this._router.history.current)``` 把 _route 变成响应式，即 this._router.history.current，_route 通过 Object.defineProperty 挂载到了 vue 实例的 $route 上，也就是说，咱们经常使用的 this.$route 是响应式的。当 confirmTransition 方法改变 history.current 的值时，_route 就会重新赋值，触发 ```<router-view />``` 组件进行重新渲染。
 
 3、```<router-link />``` 组件
 
@@ -54,9 +54,9 @@ Vue-Router 的源码代码量不算很多，但是内容却也不少，函数一
 
 ### 关键对象
 
-在 VueRouter 类中有几个关键的函数，对掌握掌握主流程和原理有很大的帮助。
+在 VueRouter 类中有几个关键的函数，对掌握主流程和原理有很大的帮助。
 
-1、路由记录 RouteRecord
+1、路由记录 RouteRecord 对象
 
 ```
 const record: RouteRecord = {
@@ -73,12 +73,12 @@ const record: RouteRecord = {
     props: route.props == null ? {} : route.components ? route.props : { default: route.props }
 }
 ```
- 路由记录是在 ./create-route-map.js 中的 addRouteRecord() 函数中定义的。
+RouteRecord 对象是在 ./create-route-map.js 中的 addRouteRecord() 函数中定义的。
 
 * regex  
- 通过 path-to-regexp 生成路由正则，为了匹配嵌套路由，比如：{ path: '/my/:userId'}
+ 通过 path-to-regexp 工具库生成路由正则，方便匹配嵌套路由，比如：{ path: '/my/:userId'}
 * components   
-保存路由中设置的组件。Router 构建选项 routes:RouteConfig 定义了两个属性用于设置组件：component 单个视图组件与 components 命名视图组件。日常开发中大多是使用 component 定义视图组件，components 命名视图组件与其最大的缺别就是路由下的组件是同级的，而不是嵌套的。在 vue-router 组件内部会将两者合并，单个视图组件赋值为 default。
+保存路由中设置的组件。Router 构建选项 routes:RouteConfig 定义了两个属性用于设置组件：component 单个视图组件与 components 命名视图组件。日常开发中大多是使用 component 定义视图组件，components 命名视图组件与其最大的区别就是路由下的组件是同级的，而不是嵌套的。在 vue-router 组件内部会将两者合并，单个视图组件赋值为 default。
 * parent   
 记录当前路由对应的嵌套路由中上一层父路由的路由记录对象，根路由的 parent 为 null。
 ```
@@ -109,9 +109,9 @@ const route: Route = {
 ```
 路由对象 route 与上面提到的路由记录 record 是有区别的，后者是在初始化 VueRouter 时，将每个路由按照标准整理成对象，前者是通过路由记录得到最终的 route 对象，前者依赖于后者。
 
-route 对象是在 ./util/route.js 的 createRoute() 函数中定义的，通过 VueRouter 类的 match() 函数调用。除了 matched 属性，了解 VueRouter 的同学对其他属性应该都不陌生。
+route 对象是在 ./util/route.js 的 createRoute() 函数中定义的，在 VueRouter 类的 match() 函数调用。除了 matched 属性，了解 VueRouter 的同学对其他属性应该都不陌生。
 
-formatMatch 函数通过深度循环遍历 record.parent，使 matched 属性记录了当前路由对应的所有嵌套路由片段的路由记录，也就是所有父路由对象按照顺序都在这个数组里面，包含当前路由的路由信息，matched 属性在路由导航守卫中起关键的作用。
+在 matched 定义时，formatMatch 函数通过深度循环遍历 record.parent，使 matched 属性记录了当前路由对应的所有嵌套路由片段的路由记录，也就是所有父路由对象按照顺序都在这个数组里面，包含当前路由的路由信息，matched 属性在路由导航守卫中起关键的作用。
 
 ```
 function resolveQueue (
@@ -133,7 +133,7 @@ function resolveQueue (
 }
 ```
 
-路由切换时，通过对比目标路由 matched 与当前路由 matched 的每一个父组件的不同，找到需要要被销毁的组件（deactivated）、要被激活的组件（activated）和需要更新的组件（updated），通过 runQueue() 函数完成路由导航守卫，关看代码的多少会有些晕，举例说明一下：
+路由切换时，通过对比目标路由 matched 与当前路由 matched 的每一个父组件的不同，找到需要要被销毁的组件（deactivated）、要被激活的组件（activated）和需要更新的组件（updated），通过 runQueue() 函数完成路由导航守卫，只看代码多少会有些晕，举例说明一下：
 
 ```
 const routes = [{
@@ -156,7 +156,7 @@ const routes = [{
 
 ![](https://img11.360buyimg.com/imagetools/jfs/t1/136305/5/7923/513653/5f433989Ec08e2e21/58f33ddbdb66e578.png)
 
-VueRouter 的本质就是一个类，其中定义了很多的属性和方法。在这里小编通过讲解其中关键的函数，帮大家整理 VueRouter 的实现思路。首先先来解析一下入口文件 index.js，其定义了 VueRouter 类。
+VueRouter 的本质就是一个类，其中定义了很多的属性和方法。在这里小编通过讲解其中关键的函数，帮大家整理 VueRouter 的实现思路。建议大家下载 VueRouter 的源码，对照着代码，阅读下面的内容。先来解析一下入口文件 index.js，其定义了 VueRouter 类。
 
 ### router.matcher 对象与 router.match 函数
 
@@ -187,7 +187,7 @@ export function createMatcher (
 ```
 从上面简化后的代码可以看出来，createMatcher 接收2个参数，routes 是 new VueRouter 实例化时，用户定义的路由配置，router 是 new VueRouter() 返回的实例。routes 是一个定义了路由配置的数组，通过 createRouteMap 函数处理为由 pathList, pathMap, nameMap 构成的对象。createMatcher 最终返回了一个对象 { match, addRoutes } 。也就是说 router.matcher 是一个对象，它对外暴露了 match 方法和 addRoutes 方法。
 
-match 和 addRoutes 方法的定义都用到了 pathList, pathMap, nameMap ，那我们就先来看一下，createRouteMap 是如何定义这3个对象的。
+match 和 addRoutes 方法的定义都用到了 pathList, pathMap, nameMap ，那我们就来看一下，createRouteMap 是如何定义这3个对象的。
 
 **createRouteMap()**
 createRouteMap 函数相关的实现都在 src/create-route-map.js中。
@@ -220,7 +220,7 @@ export function createRouteMap (
 }
 ```
 
-createRouteMap 函数主要是把用户的路由匹配选项按照一定的规则转换成 3 张路由映射表，通过循环遍历 routes 为每一个 route 执行 addRouteRecord 方法生成一条记录。
+createRouteMap 函数主要是把用户的路由匹配选项按照一定的规则转换成 3 张路由映射表，即：路径映射表、路由名称映射表、通用路由映射表，通过循环遍历 routes 为每一个 route 执行 addRouteRecord 方法生成一条记录。
 
 **addRouteRecord()**
 ```
@@ -306,7 +306,7 @@ match 有匹配、对应的意思，那匹配的是什么呢？当我们通过 t
 
 **createRoute 创建路由对象**
 
-_createRoute 函数很简单，_createRoute 函数根据有是否有路由重定向、路由重命名做不同的处理。其中 redirect 函数和 alias 函数最后还是调用了 _createRoute，最后都是调用了 createRoute。createRoute 函数相关的实现在 util/route.js 中
+_createRoute 函数很简单，_createRoute 函数根据是否有路由重定向、路由重命名做不同的处理。其中 redirect 函数和 alias 函数最后还是调用了 _createRoute，最后都是调用了 createRoute。createRoute 函数相关的实现在 util/route.js 中
 
 ```
 /**
@@ -339,7 +339,7 @@ export function createRoute (
   return Object.freeze(route)
 }
 ```
-createRoute 可以根据 record 和 location 创建出来最终返回 Route 对象，即 this.$route，通过 Object.freeze(route) 使其外部不可以修改，只能访问。Route 对象中有一个非常重要的属性是 matched，它是通过 formatMatch(record) 计算的：
+createRoute 可以根据 record 和 location 创建出来，最终返回 Route 对象，即 this.$route，通过 Object.freeze(route) 使其外部不可以修改，只能访问。Route 对象中有一个非常重要的属性是 matched，它是通过 formatMatch(record) 计算的：
 
 ```
 function formatMatch (record: ?RouteRecord): Array<RouteRecord> {
@@ -351,7 +351,7 @@ function formatMatch (record: ?RouteRecord): Array<RouteRecord> {
   return res
 }
 ```
-通过 record 循环向上找 parent，直到找到最外层，并把所有的 record 都 push 到一个数组中，最终返回 record 数组，这个 matched 为后面的嵌套路由渲染组件提供了重要的作用。
+通过 record 循环向上找 parent，直到找到最外层，并把所有的 record 都 push 到一个数组中，最终返回 record 数组，这个 matched 在后面的嵌套路由渲染组件中起到了重要的作用。
 
 
 > matcher 的主流程就是通过 createMatcher 返回一个对象 {match, addRoutes}, addRoutes 是动态添加路由用的，平时使用频率比较低，match 很重要，返回一个路由对象，这个路由对象上记录当前路由的基本信息，以及路径匹配的路由记录，为路径切换、组件渲染提供了依据。
