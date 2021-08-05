@@ -28,12 +28,64 @@ vue-cli 是小编接触的第一个脚手架，其可以快速初始化 vue 项�
 
 在本地的某个路径下创建一个文件夹，在文件夹中使用 npm init 创建 package.json。package.json 设置中有几个关键的字段对创建脚手架很重要。
 
-#### bin
-
-用来指定各个内部命令对应的可执行文件的位置。当全局安装 npm install ** -g 一个 npm 包的时候，npm 包就会执行内部 package.json 中的 bin 命令。比如：安装完 npm install vue-cli -g 后，在项目中可以通过 vue-cli dev 来启动项目。
+#### 【关键】name 字段
 
 
-### 2) 
+#### 【重要】bin 字段
+
+它是一个命令名和本地文件名的映射，用来指定各个内部命令对应的可执行文件的位置。通过 npm install ** 安装时，若是全局安装，那可执行文件会被链接到 prefix/bin 中，若是本地安装，会被链接到当前项目 ./node_modules/.bin 中。比如：vue-cli 源码中
+
+vue-cli
+
+```
+"bin": {
+    "vue": "bin/vue.js"
+},
+```
+
+npm install vue -g 全局安装完以后，在终端输入 vue 命令则会出现 vue 相关的命令介绍，其实输入 vue 命令后，执行的便是 "bin/vue.js" 文件中的内容。根据上面的思路，设置 xl-rookie-cli 中的 bin 字段
+
+xl-rookie-cli 
+
+```
+"bin": {
+    "rookie-cli": "./dist/bin/index.js"
+},
+```
+
+#### 【重要】private 字段、files 字段、version
+
+这三个字段对开发 xl-rookie-cli 内容没有关系，却是将当前脚手架发布为 NPM 依赖包的关键，也是完成 xl-rookie-cli 的最后一步。
+
+1) files 字段
+
+当你发布时，具体哪些文件会发布上去。
+
+```
+"files": [
+    "dist",
+    "README.md",
+    "package.json",
+    "template.json"
+],
+```
+
+2) private 字段
+
+private 字段对于发布 npm 包很重要。该属性主要是防止你手残执行了npm publish，发布了你不想发布的包，或者发布到不想发布的 npm 私服中。npm init 初始化时，默认是 false，一定要记得修改。
+
+```
+"private": true
+```
+
+3) version 字段
+
+version 很好理解，表示版本信息。小编想特别提醒的是，在执行 npm publish 时，当前的 version 一定是新的，不能是已经发布的版本，否则会发布失败。
+#### version
+
+
+
+### 2) 编辑 bin 执行文件
 
 
 
