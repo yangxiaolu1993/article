@@ -59,3 +59,11 @@ npm run 执行的是 package.json 中定义的 scripts 对象。执行的是脚�
 package 包开发重要的参数：name/version/description/main/scripts/private
 
 业务代码和包代码
+
+### npm 包命令
+
+npm命令集： mac安装路径： /usr/local/lib/node_modules/
+
+npm list -g 查看安装模块全局
+npm list -g --depth 0 只查看一级的
+npm init 初始化项目
