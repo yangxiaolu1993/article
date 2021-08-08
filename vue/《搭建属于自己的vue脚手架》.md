@@ -50,16 +50,31 @@ Manually select features 则可以选择 router、vuex、css、typescript 的配
 
 ## 搭建 xl-rookie-cli
 
-搭建属于自己的 Vue 脚手架，方便在自主练习时，能快速初始化符合自己习惯的 Vue 开发环境。首先得先明确，xl-rookie-cli 需要满足哪些功能
+搭建属于自己的 Vue 脚手架，方便在自主练习时，能快速初始化符合自己习惯的 Vue 开发环境。小编先把搭建好的目录结构展示给出来
+
+xl-rookie-cli
+```
+├── dist                                # typescript 编译后的文件
+├── package.json                        # 项目基本信息
+├── src                                 
+│   ├── bin                            
+│       └── index.ts                    # bin 执行文件
+│   ├── commands                        # 命令对应的处理方法
+│       └── create.ts                   # 新建项目命令
+│   └── utils                           # 公共函数
+├── template.json                       # 初始化项目模板对应的远程地址
+├── README.md                           # 项目描述信息（一些方法使用的注意事项）
+└── tsconfig.json                       # TypeScript 编译设置
+
+```
+其中项目结构很简单，有没有给到电脑前的你一思读下去的信心。那先来思考一下，一个基础脚手架 xl-rookie-cli 需要满足哪些功能
 
 * 全局命令操作。与在终端输入 vue 一样，输入 rookie-cli 同样可以输出 rookie-cli 可执行的命令
 * 初始化项目架构。符合自己开发习惯的依赖、文件目录结构等
 
-在初始阶段，先把基础的脚手架功能实现。
-
 ### 1) 使用 npm init 创建 package.json
 
-在本地的某个路径下创建一个文件夹，在文件夹中使用 npm init 创建 package.json。package.json 设置中有几个关键的字段对创建脚手架很重要。
+在本地的某个路径下创建一个文件夹 rookie-cli，在文件夹中使用 npm init 创建 package.json。package.json 设置中有几个关键的字段对创建脚手架很重要。
 
 #### 【关键】bin 字段
 
@@ -117,17 +132,54 @@ version 很好理解，版本号。对于业务项目来说，没有强要求。
 
 package 名。对于业务项目来说意义不大，但是对于 npm 包开发来说，很重要，决定了 package 包的名称，也就是对外发布的名称，即 npm install <name> 时的名字。这里要着重说一下，npm publish 之前最好先去 npm 官网上找一下有没有同名的包。最好的测试方式就是，在命令行里面输入 npm install <你要取的名字>，如果报错，那么很好，npm 上没有跟你同名的包，你可以放心大胆地把包发布出去。如果成功下载下来了。。。那么很不幸，只能改名字了...
 
-#### 【关键】main 字段（待定）
+#### 【无关】main 字段
 
-main 代表的则是入口文件，main 属性主要使用在引用或者开发某个依赖包的时候需要此属性的支持，不然工程中无法用 import 导入依赖包；
-不使用main属性的话我们可能需要这样写引用：require("some-module/dist/app.js")
-
-xl-rookie-cli 包发布之后主要是通过命令名和本地文件名之间的映射来完成，说白了就是 bin 字段控制，main 字段在 xl-rookie-cli 包中是不是可以不设置。
+main 代表的则是入口文件，main 属性主要使用在引用或者开发某个依赖包的时候需要此属性的支持，不然工程中无法用 import 导入依赖包；不使用main属性的话我们可能需要这样写引用：require("some-module/dist/app.js")。xl-rookie-cli 包发布之后主要是通过命令名和本地文件名之间的映射来完成，说白了就是 bin 字段控制，main 字段在 xl-rookie-cli 包中是可以不设置。
 
 
-### 2) 编辑 bin 执行文件
+### 2) 配置 Typescript
 
-bin 执行文件对应的是 package.json 中 bin 字段对应的文件，xl-rookie-cli 目录结构的 ./bin/index.ts。bin 执行文件中有一段很关键的代码，一定要放在文件开头
+顺应时代潮流，Vue3 都使用了 Typescript ，咱们可不能落后，必须搞起来。其实加入 Typescript 只需要两步就能搞定。
+
+1) 在项目根目录新建 tsconfig.json 文件
+
+```
+{
+    "compilerOptions": {
+      "target": "es5",                          
+      "module": "commonjs",                     
+      "declaration": true,                      
+      "sourceMap": true,                        
+      "outDir": "./dist",    // 编译后文件的             
+      "strict": true,                           
+      "moduleResolution": "node",              
+      "esModuleInterop": true,                  
+      "forceConsistentCasingInFileNames": true, 
+      "resolveJsonModule": true
+    },
+    "include": ["src/**/*"],
+    "exclude": [
+      "node_modules"
+    ]
+  }
+  
+```
+其中，outDir、include、exclude 比较重要，outDir 决定编译后的文件放到哪里，include 决定哪些文件需要进行编译，而 exclude 决定哪些文件不需要进行编译。
+
+2) 编译 ts 文件
+
+配置好编译规则后，那就开始编译吧。在 package.json 中配置一行代码就行
+
+```
+ "scripts": {
+   "dev": "tsc --watch --incremental"
+},
+```
+执行 npm run dev，就可以把 ts 文件实时编译为 js 文件，放到 outDir 配置的路径中。注意，在开发脚手架的过程中，npm run dev 一定要是执行的，毕竟 bin 执行文件对应的路径是编译之后的文件。
+
+### 3) 编辑 bin 执行文件
+
+唠叨了这么多，终于到了 bin 执行文件，bin 执行文件对应的是 package.json 中 bin 字段对应的文件，xl-rookie-cli 目录结构的 ./bin/index.ts。bin 执行文件中有一段很关键的代码，一定要放在文件开头
 
 index.ts
 
@@ -246,9 +298,74 @@ program
 
 ![](https://img14.360buyimg.com/imagetools/jfs/t1/181609/18/18241/89013/610e2d24Ef6d2ebd3/ac2cdb4b8ecb7a7d.png)
 
-接下来就要编写 create 方法了，在 create() 中定义了实现了创建项目的方法。
+接下来就到了 create() 函数了，在这个函数中，实现了初始化项目，其实思路很简单，就是在 github 中按照自己的开发习惯创建一个初始化项目模板，在 create 函数中，利用 download-git-repo 依赖包，将远程模板下载到当前目录就结束了，是不是 so easy.... 
+
+按照这个思路，模板就可以有任意多个远程路径，在根目录下创建 template.json 文件，用于配置以有模板的路径。
+
+template.json
+```
+{
+    "normal":"https://github.com:yangxiaolu1993/rookie-cli#rookie-cli-template"
+}
+```
+其中，normal 为模板名，"https://github.com:yangxiaolu1993/rookie-cli#rookie-cli-template" 为模板地址，模板地址要注意， https://github.com:yangxiaolu1993/rookie-cli 为 GitHub 的地址，rookie-cli-template 为分支名称。
 
 
+好了，终于到 create() 函数了。
+
+```
+const chalk = require('chalk')
+const ora = require('ora')
+const download = require('download-git-repo')
+
+export async function create(program: {
+	args:string[]
+}) {
+	// 读取根目录下的模板列表
+	const tplObj = require(ROOT_CLI_PATH('template'))
+	
+	let templateName = program.args[0]
+	let projectName = program.args[1]
+	// 小小校验一下参数
+	if (!tplObj[templateName]) {
+		console.log(chalk.red('\n Template does not exit! \n '))
+		return
+	}
+	if (!projectName) {
+		console.log(chalk.red('\n Project should not be empty! \n '))
+		return
+	}
+
+	console.log(`use rookie-cli create ${projectName}`)
+
+	let url = tplObj[templateName]
+	const spinner = ora("Downloading...");
+	spinner.start();
+
+	// 执行下载方法并传入参数
+	download(
+		url,
+		projectName,
+		{ clone: true },
+		(err: any) => {
+			if (err) {
+				spinner.fail();
+				console.log(chalk.red(`Generation failed. ${err}`))
+				return
+			}
+			// 结束加载图标
+			spinner.succeed();
+			console.log(chalk.green('\n Generation completed!'))
+			console.log('\n To get started')
+			console.log(`\n cd ${projectName} \n`)
+		}
+	)
+}
+```
+
+首先先校验一下，模板名是否存在与项目名是否为空，接下来就是下载模板了， download-git-repo 默认下载到当前目录下。
+
+好了，rookie-cli create normal demo 测试一下吧。
 
 ## 结束语
 在我的认知中，前端脚手架一个高大尚的词汇，这些都是大佬们玩的东西，只能是望而却步。但其实不然，并不是因为困难使我们不敢尝试，而是因为不敢尝试所以才显得困难。
