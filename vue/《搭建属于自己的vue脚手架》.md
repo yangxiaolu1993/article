@@ -203,95 +203,26 @@ index.ts
 console.log('hello xl-rookie-cli')
 
 ```
-需要清楚的一点是，脚手架是在 node 环境下运行的。但每台电脑下的 node 的安装路径又是不同的，配置 #!/usr/bin/env node, 就是解决不同电脑终端 node 路径不同的问题，可以让系统动态的去查找 node 来执行脚本文件。不妨来试一试，在 xl-rookie-cli 下使用 node 执行 index.ts 文件
+需要清楚的一点是，脚手架是在 node 环境下运行的。但每台电脑下的 node 的安装路径又是不同的，配置 #!/usr/bin/env node, 就是解决不同电脑终端 node 路径不同的问题，可以让系统动态的去查找 node 来执行脚本文件。不妨来试一试，在 xl-rookie-cli 下使用 node 执行编译后 index.ts 文件
+
+```
+node ./dist/bin/index.js
+```
 
 ![](https://img11.360buyimg.com/imagetools/jfs/t1/203838/5/195/16578/610e22aeEa4a0925e/24df0d4a6a89bbbc.png)
 
-成功与 xl-rookie-cli 打了一下招呼。在完善 bin 执行文件之前，先来了解一下下面这些依赖包，如果已经融会贯通可以直接跳过。
+成功与 xl-rookie-cli 打了一下招呼。但一直使用 node ./dist/bin/index.js 执行挺麻烦的，将此执行简化，使用 rookie-cli 代替 node ./dist/bin/index.js 执行。 执行 npm link ，node 会访问 package.json ，将 bin 字段设置的执行文件挂载到全局，这样就算是在开发阶段，也可以体验到发布后的效果。
+
+![](https://img14.360buyimg.com/imagetools/jfs/t1/181609/18/18241/89013/610e2d24Ef6d2ebd3/ac2cdb4b8ecb7a7d.png)
+
+编写 bin 执行文件会用到下面这几个依赖包，如果你不是很了解，可以先跳到篇尾【知识回顾】一节。
 
 * commander
 * inquirer
 * ora
 * download-git-repo
 
-1) commander (https://github.com/tj/commander.js/blob/HEAD/Readme_zh-CN.md)
-
-用来编写指令和处理命令行，提供的 API：
-
-* command：自定义执行的命令
-* option：可选参数
-* alias：用于 执行命令的别名
-* description：命令描述
-* action：执行命令后所执行的方法
-* usage：用户使用提示
-* parse：解析命令行参数，注意这个方法一定要放到最后调用
-
-```
-const program = require("commander");
-program
-    .version('1.0.0')
-    .usage('<command> [options]')
-    .command('delete', 'delete a template') // 设置可执行命令
-    .action(()=>{
-        // 回调函数
-        console.log('start delete template')
-    })
-
-// 解析命令行参数
-program.parse(process.argv)
-
-```
-
-执行 node ./src/bin/index.ts，则会得到与执行 vue 一样的效果
-
-![](https://img12.360buyimg.com/imagetools/jfs/t1/182650/32/18183/52819/610e26a2Efd9f0cad/8d0a5302f88eb13a.png)
-
-还需要特别说明一下， program.args 用来获取命令传递的参数。比如：执行 vue init webpack demo 时，program.args 会以数组的形式存储 ['webpack','demo']
-
-2) inquirer
-
-强大的交互式命令行工具。
-
-```
-const inquirer = require('inquirer');
-inquirer
-    .prompt([
-    // 一些交互式的问题
-    ])
-    .then(answers => {
-    // 回调函数，answers 就是用户输入的内容，是个对象
-    });
-```
-
-回忆一下，在使用 vue init webpack name 时，是不是有几个交互的问题，需要你决定版本号、文件名、描述、要不要使用 router 等等，它就是来实现这些的。
-
-3) ora
-
-在进行项目开发时，总是需要添加 loading，来提醒用户已经进行了交互操作，只需耐心等待。在命令行交互中，ora 就担任了此任务，它可以提供 loading 的效果。
-
-```
-const ora = require('ora')
-let spinner = ora('loading ...')
-spinner.start()
-
-```
-
-虽然不能自定义样式，但传达的意思是一致的
-
-![](https://img10.360buyimg.com/imagetools/jfs/t1/201689/6/178/17076/610e28caE5282ab6d/9b87733eae2d733e.png)
-
-4) download-git-repo
-
-下载远程模板，支持 GitHub/GitLab Bitbucket 等。
-
-```
-const download = require('download-git-repo')
-download(repository, destination, options, callback)
-```
-
-其中 repository 是远程仓库地址；destination 是存放下载的文件路径，也可以直接写文件名，默认就是当前目录；options 是一些选项，比如 { clone：boolean } 表示用 http download 还是 git clone 的形式下载。
-
-如果你对上面这些依赖包的内容都已经熟悉了，小编相信，实现基础脚手架是非常容易的事情。好了，回到之前的话题，继续编写 bin 执行文件中的内容。在 bin 执行文件中，添加 create 命令，来搭建一个完整的项目。
+如果你对上面这些依赖包的内容都已经熟悉了，小编相信，实现基础脚手架是非常容易的事情，正式进入 bin 执行文件的编写。在 bin 执行文件中，添加 create 命令，来搭建一个项目。
 
 ```
 import {ROOT_CLI_PATH} from '../utils/path'
@@ -305,15 +236,7 @@ program
         create(program)
     })
 ```
-其中，ROOT_CLI_PATH 函数用于定位到项目根目录。
-
-<!-- !()() -->
- 
-完美输出，但是一直使用 node ./dist/bin/index.js 执行挺麻烦的，将此执行简化，使用 rookie-cli 代替 node ./dist/bin/index.js 执行。 执行 npm link ，node 会访问 package.json ，将 bin 字段设置的执行文件挂载到全局，这样就算是在开发阶段，也可以体验到发布后的效果。
-
-![](https://img14.360buyimg.com/imagetools/jfs/t1/181609/18/18241/89013/610e2d24Ef6d2ebd3/ac2cdb4b8ecb7a7d.png)
-
-接下来就到了 create() 函数了，在这个函数中，实现了搭建项目，其实思路很简单，就是在 github 中按照自己的开发习惯创建一个搭建项目模板，在 create 函数中，利用 download-git-repo 依赖包，将远程模板下载到当前目录就结束了，是不是 so easy.... 
+其中，ROOT_CLI_PATH 函数用于定位到项目根目录。在 create 函数中，实现了搭建项目，其实思路很简单，就是在 github 中按照自己的开发习惯创建一个搭建项目模板，在 create 函数中，利用 download-git-repo 依赖包，将远程模板下载到当前目录就结束了，是不是 so easy.... 
 
 按照这个思路，模板就可以有任意多个远程路径，在根目录下创建 template.json 文件，用于配置以有模板的路径。
 
@@ -325,8 +248,7 @@ template.json
 ```
 其中，normal 为模板名，"https://github.com:yangxiaolu1993/rookie-cli#rookie-cli-template" 为模板地址，模板地址要注意， https://github.com:yangxiaolu1993/rookie-cli 为 GitHub 的地址，rookie-cli-template 为分支名称。
 
-
-好了，终于到 create() 函数了。
+好了，终于到 create 函数了。
 
 ```
 const chalk = require('chalk')
@@ -380,20 +302,24 @@ export async function create(program: {
 
 首先先校验一下，模板名是否存在与项目名是否为空，接下来就是下载模板了， download-git-repo 默认下载到当前目录下。
 
-好了，rookie-cli create normal demo 测试一下吧。
+好了，执行 ``` rookie-cli create normal demo ```测试一下吧。
 
-恭喜你，你已经成功实现了一个基础的脚手架。接下来，就是发布到 GitHub 上
+![](https://img12.360buyimg.com/imagetools/jfs/t1/196098/25/17665/99866/611099bbEf931aa3b/b60bb7fe0b0c6808.png)
+
+ok，没有报错，而且在根目录下，成功新建了 demo 文件夹。
+
+恭喜你，你已经成功实现了一个基础的脚手架。接下来，就将 xl-rookie-cli 依赖包发布到 GitHub 上吧。
 
 ### 4) 发布 GitHub
 
 * 打开 npm 官网、注册 npm 账号
-* 检索所否有重复的包名，也就是 package.json name 字段设置的名字，如果已经存在了，很不幸只能更名了。小编就属于不幸中的一员，包名由 rookie-cli 改为了 xl-rookie-cli
-* 执行命令 npm login，登录自己在 npm 官网注册的账号
+* 检索否有重复的包名，也就是 package.json name 字段设置的名字，如果已经存在了，很不幸只能更名了。小编就属于不幸中的一员，包名由 rookie-cli 改为了 xl-rookie-cli
+* 终端执行命令 npm login，登录自己在 npm 官网注册的账号
 * 登录成功后，在项目下执行 npm publish 发布包，发布之前一定要注意两点：
-   a. version 版本号是不是已经存在了，否则会发布失败
-   b. 镜像一定要是 npm，不能使用淘宝镜像或者公司内容镜像
+   a. version 版本号是不是已经存在了，否则会发布失败 
+   b. 镜像一定要是 npm，不能使用淘宝镜像或者公司镜像 
 
-发布完成之后，大概需要等 30s 左右，npm 官网才能查询到。到了激动人心的时刻了，作为使用者来验证一下 xl-rookie-cli。在 npm install xl-rookie-cli -g 之前，需要先卸载开发时已经挂载的 rookie-cli，执行
+发布完成之后，大概需要等 30s 左右，npm 官网才能更新。到了激动人心的时刻了，作为使用者来验证一下 xl-rookie-cli。在执行``` npm install xl-rookie-cli -g ```之前，需要先卸载开发时已经挂载的 rookie-cli，执行
 
 ```
 npm unlink 
@@ -403,15 +329,13 @@ npm unlink
 ```
 npm uninstall xl-rookie-cli -g
 ```
-如果执行 ```rookie-cli -V```显示 ```zsh: command not found: rookie-cli```，或执行 ``` npm list -g ``` 显示的全局已安装的包中没有 xl-rookie-cli ，则证明删除成功。
-
-接下来，执行
+如果执行 ```rookie-cli -V```显示 ```zsh: command not found: rookie-cli```，或执行 ``` npm list -g ``` 显示的全局已安装的包中没有 xl-rookie-cli ，则证明删除成功。接下来，执行
 
 ```
 npm install xl-rookie-cli -g
 ```
 
-全局挂载了 rookie-cli，执行 ``` rookie-cli -h ``` , 显示
+全局挂载 rookie-cli，执行 ``` rookie-cli -h ``` , 显示
 
 ![](https://img13.360buyimg.com/imagetools/jfs/t1/191525/5/17480/56718/6110986dEca6d2809/098149582f140a0c.png)
 
@@ -423,7 +347,91 @@ npm install xl-rookie-cli -g
 
 ![](https://img12.360buyimg.com/imagetools/jfs/t1/177231/10/18568/134959/61109cb2Ed7884c2a/10e670ecc43f894d.png)
 
-在这里小编就赘述实现 add 的方式了，小编相信只要耐心实现了 create 命令，add 命令的实现是轻而易举的。
+在这里就不赘述实现 add 命令的方式了，add 命令的实现作为检验学习成果，小编相信只要了解了 create 命令的实现，add 命令的实现电脑前的你肯定没问题。
+
+### 知识回顾
+
+* commander
+* inquirer
+* ora
+* download-git-repo
+
+1) commander (https://github.com/tj/commander.js/blob/HEAD/Readme_zh-CN.md)
+
+用来编写指令和处理命令行，提供的 API：
+
+* command：自定义执行的命令
+* option：可选参数
+* alias：用于 执行命令的别名
+* description：命令描述
+* action：执行命令后所执行的方法
+* usage：用户使用提示
+* parse：解析命令行参数，注意这个方法一定要放到最后调用
+
+```
+const program = require("commander");
+program
+    .version('1.0.0')
+    .usage('<command> [options]')
+    .command('delete', 'delete a template') // 设置可执行命令
+    .action(()=>{
+        // 回调函数
+        console.log('start delete template')
+    })
+
+// 解析命令行参数
+program.parse(process.argv)
+
+```
+
+执行 node ./dist/bin/index.js，则会得到与执行 vue 一样的效果
+
+![](https://img12.360buyimg.com/imagetools/jfs/t1/182650/32/18183/52819/610e26a2Efd9f0cad/8d0a5302f88eb13a.png)
+
+还需要特别说明一下， program.args 用来获取执行命令传递的参数。比如：执行 vue init webpack demo 时，program.args 会以数组的形式存储 ['webpack','demo']
+
+2) inquirer
+
+强大的交互式命令行工具。
+
+```
+const inquirer = require('inquirer');
+inquirer
+    .prompt([
+    // 一些交互式的问题
+    ])
+    .then(answers => {
+    // 回调函数，answers 就是用户输入的内容，是个对象
+    });
+```
+
+回忆一下，在执行 vue init webpack name 时，是不是有几个交互的问题，需要你决定版本号、文件名、描述、要不要使用 router 等等，它就是来实现这些的。
+
+3) ora
+
+在进行项目开发时，总是需要添加 loading，来提醒用户已经进行了交互操作，只需耐心等待。在命令行交互中，ora 就担任了此任务，它可以提供 loading 的效果。
+
+```
+const ora = require('ora')
+let spinner = ora('loading ...')
+spinner.start()
+
+```
+
+虽然不能自定义样式，但传达的意思是一致的。
+
+![](https://img10.360buyimg.com/imagetools/jfs/t1/201689/6/178/17076/610e28caE5282ab6d/9b87733eae2d733e.png)
+
+4) download-git-repo
+
+下载远程模板，支持 GitHub/GitLab Bitbucket 等。
+
+```
+const download = require('download-git-repo')
+download(repository, destination, options, callback)
+```
+
+其中 repository 是远程仓库地址；destination 是存放下载的文件路径，也可以直接写文件名，默认就是当前目录；options 是一些选项，比如 { clone：boolean } 表示用 http download 还是 git clone 的形式下载。
 
 ### 代码直通车
 
