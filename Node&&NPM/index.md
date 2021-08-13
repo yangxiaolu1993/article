@@ -4,7 +4,7 @@
 
 ### vue.js 、node.js、webpack、npm 之间的关系
 
-Node 是一个基于 Chrome V8 引擎的 JavaScript 运行环境，让 JavaScript 可以运行在服务端的开发平台。是一个框架
+Node 是一个基于 Chrome V8 引擎的 JavaScript 运行环境，让 JavaScript 可以运行在服务端的开发平台。
 
 Npm 是基于 NodeJs 的包管理工具。使 JavaScript 可以共享于全世界各种模块中。
 
