@@ -67,3 +67,44 @@ npm命令集： mac安装路径： /usr/local/lib/node_modules/
 npm list -g 查看安装模块全局
 npm list -g --depth 0 只查看一级的
 npm init 初始化项目
+
+
+### node.js 、 V8 引擎、JavaScript
+
+JavaScript 引擎是一个专门处理 JavaScript 脚本的虚拟机，一般会附带在网页浏览器之中。
+
+什么是虚拟机啊？
+虚拟机，值计算机科学中的体系结构里，是指一种特殊的软件，可以在计算机平台和终端用户之间创建一种环境，而终端用户则是基于这个软件所创建的环境来操作软件。
+
+简单的说，JavaScript 引擎就是能够“读懂”JavaScript 代码，并准确的给出代码运行结果的一段程序。比如： ``` let a = 1+2``` JavaScript 引擎的作用就是解析这段代码，并将 a 的值变为 3。对于静态语言来说（java、c++），处理上述这些事情的叫编译器，相应的对于JavaScript这样的动态语言则叫解释器。
+
+JavaScript 属于解释器还是编译器难以界定。Chrome 浏览器的引擎 V8 
+
+JavaScript 解析引擎与 ECMAScript 之间的关系？
+JavaScript 解析引擎是一段程序，而我们写的 JavaScript 代码也是程序，如何让代码解析（读懂）代码呢？这就需要定义规则，也就是 ES5、ES6 定义的规则、标准。
+
+浏览器是网页运行的平台，IE、火狐、Chrome、Safari、Opera 成为 5大浏览器。浏览器内核分为2部分：渲染引擎和JavaScript 引擎。
+
+浏览器内核：Chrome （blink，其实是webkit的分支）、Safari（webkit）、火狐（Gecko），浏览器内核一般指的是渲染引擎
+JavaScript 引擎：前端接触最多的就是 V8 引擎。
+
+Chrome V8 引擎，简称 V8 ，是由 谷歌 Chromium 项目团队开发，应用在 Chrome 和基于 chromium 浏览器上的
+
+JavaScript 引擎的执行过程大致是：
+
+源代码 --> 抽象语法树（AST） -->  字节码  -->  JIT （即使编译器）--> 本地代码（V8引擎没有中间字节码）。
+
+V8 引擎在执行 JavaScript的过程中，主要有2个阶段：编译和运行
+
+V8 最初旨在提高 Web 浏览器中 JavaScript 执行的性能。为了提升速度，V8 将 JavaScript 代码转换为 更高效的机器代码，而不是使用解释器。它通过实现 JIT（即时）编译器将JavaScript代码编译成机器代码，就像许多现代JavaScript引擎（如SpiderMonkey或Rhino（Mozilla））所做的那样。与V8的主要区别在于它不会产生字节码或任何中间代码。
+
+
+Node 是基于 Chrome V8 引擎开发的能够使 JavaScript 在服务器运行的运行时环境。一方面，提供了多种可调用的 API，如读写文件、网络请求、系统信息的等。另一方面，因为CPU执行的是机器码，还负责将JavaScript代码解释成机器指令序列执行，这部分工作由V8引擎完成。
+
+想要真正做到 JavaScript 全栈，路漫漫其修远兮
+
+
+
+参考文献：https://blog.csdn.net/acoolgiser/article/details/83313009
+        https://blog.csdn.net/weixin_34112181/article/details/88834880
+
