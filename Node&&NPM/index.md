@@ -104,6 +104,15 @@ Node 是基于 Chrome V8 引擎开发的能够使 JavaScript 在服务器运行�
 想要真正做到 JavaScript 全栈，路漫漫其修远兮
 
 
+在前端项目运行过程中，NodeJS 做了哪些事情？
+
+nodejs 大多被用于前端开发的开发环境。 以 webpack 为例，webpack是运行在 node 环境的打包工具，可以把 a.js b.js c.js 打包合并为一个 bundle.js，而打包的第一步就是文件的读写能力，
+
+vue-cli  react-cli  都是运行在 nodejs 环境下的脚手架。
+
+vuecli 是运行在 nodejs 环境下帮助我们 开发基于vue框架的项目 的脚手架
+
+基于node的前端开发
 
 参考文献：https://blog.csdn.net/acoolgiser/article/details/83313009
         https://blog.csdn.net/weixin_34112181/article/details/88834880
